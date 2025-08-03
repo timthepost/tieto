@@ -1,4 +1,6 @@
 // metadata‑aware RAG and retrieval with safe filtering & debug
+// uses cosine similarity, file-file topics and JSONL sections.
+// Scales easily over local or network storage. 
 // ============================================================
 // TODO: Make this a class with config opts
 
@@ -14,7 +16,13 @@ interface Filter {
   value: string | string[];
 }
 
-// query debugging
+// the minimum similarity required to output a match.
+// 0.40 is pretty noisy
+// 0.38 and below is almost unfiltered
+// Was not a planned Hitchhiker's Guide To The Galaxy allusion.
+const minSimilarityThreshold = 0.42;
+
+// query + filter + result debugging
 const DEBUG = Deno.args.includes("--debug") || Deno.env.get("DEBUG") === "1";
 
 function logDebug(...args: unknown[]) {
@@ -195,17 +203,17 @@ async function query(topic: string, question: string, filters: Filter[]) {
     .sort((a, b) => b.score - a.score)
     .slice(0, 3);
   const context = scored.map((c) => c.text).join("\n\n");
-  /*
-  console.log('AND THE WINNING SCORE IS:', scored[0].score);
-  for (const element of scored) {
-    console.log('Text: ', element.text);
-    console.log('Score:', element.score);
-  }
-  */
-  logDebug("Query: winning score was " + scored[0].score);
   
-  const minSimilarityThreshold = 0.425;
-
+  logDebug('Query: minimum score for inclusion is ', minSimilarityThreshold);
+  logDebug('Query: winning score from memory was ', scored[0].score);
+  if (DEBUG) {
+    for (const element of scored) {
+      console.log('-----');
+      console.log('Text: ', element.text);
+      console.log('Score:', element.score);
+    }
+  }
+  
   if (scored[0].score < minSimilarityThreshold) {
     logDebug("⚠️  No chunks scored above threshold. Highest was: ", scored[0].score);
     return;
