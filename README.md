@@ -141,6 +141,7 @@ using this, even with high volume document ingestion.
 - I/O through [Splinter][1] (with HTTP/S fallback) using Splinter's
   [Deno FFI bindings][2].
 - Queries are already very fast, but topic indexing will improve them.
+- This really needs to become a proper class
 
   [1]: https://github.com/timthepost/splinter
   [2]: https://github.com/timthepost/libsplinter/tree/main/bindings/ts
