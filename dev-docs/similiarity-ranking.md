@@ -142,8 +142,10 @@ Score: 0.3176448962041357
 ```
 
 Similarity plummeted, but there _**was**_ relation to _sexual_ and _health_. Not
-really just full text (`LIKE`), although _similiarty_ in known components,
+really just full text (`LIKE`), although _similarity_ in known components,
 especially in order, matters a lot.
+
+Cosine similarity compares the meaning of your query to the memory embeddings, not the literal words. It's like asking: *Do these feel like they're about the same thing?*
 
 ### Similarity Threshold Setting Breakdown Table
 
