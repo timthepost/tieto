@@ -4,10 +4,10 @@ Tieto was created to provide local (quantized / GGUF) large language models with
 text-based retrieval and retrieval-augmented generation capabilities, in
 resource-constrained environments. Tieto is also the Finnish word for knowledge.
 
-Using Tieto, llama.cpp, and [any 3B - 8B Q4_K_S or Q4_K_M model][3], you can
-easily run a simple interface to query local text/markdown documents. Tieto was
-developed on an 11th-gen i3 Chromebook with less than 6GB of usable RAM - it'll
-run on any system that can host Deno and a CPU-bound inference engine
+Using Tieto, llama.cpp, and [almost any 3B - 8B Q4_K_S or Q4_K_M model][3], you
+can easily run a simple interface to query local text/markdown documents. Tieto
+was developed on an 11th-gen i3 Chromebook with less than 6GB of usable RAM -
+it'll run on any system that can host Deno and a CPU-bound inference engine
 (llama.cpp).
 
 Tieto supports frontmatter metadata in files, and allows filtering by metadata
@@ -92,10 +92,12 @@ windows, which on local models, can already be limited.
 ## What's Included:
 
 - TS Runtime (ingest and query text)
-- Misc scripts to help you get started using it
-- A few examples
+- Example script (assuming llama-server) to run an embedding model
+- Example script (assuming llama-server) to run a completion model
+- Example RAG prompt to return structured, consistent JSON
+- Brief tutorial on cosine similarity and contextual relativism.
 
-## How To Implement:
+## Ways To Experiment In Your Own Pipelines:
 
 - Query Pipeline:
   1. Oak API gets user input
@@ -125,9 +127,9 @@ what makes TypeScript so ideal.
 
 This is not intended for high-volume use, but the only limits to this are the
 RAM and underlying file system, as long as you have enough CPU to support at
-least the Oak front-end and (ideally) an embedding model. See the `docs/` folder
-for more about how to get started. Most modern desktops will not break a sweat
-using this, even with high volume document ingestion.
+least the Oak front-end and (ideally) an embedding model. See the `dev-docs/`
+folder for more about how to get started. Most modern desktops will not break a
+sweat using this, even with high volume document ingestion.
 
 ## Next Development Focus
 
