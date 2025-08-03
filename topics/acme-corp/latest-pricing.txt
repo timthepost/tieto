@@ -1,0 +1,29 @@
+---
+title: "Widget Product Updates"
+type: "pricing"
+audience: "all"
+status: "current"
+updated: 2025-07-04
+---
+A widget is a personal health product that we sell.
+
+product: Widget A
+alias: Product A
+description: A good mid-range widget
+price: $29.99
+last_updated: 2025-06-04
+customer_rating: 8/10
+
+product: Widget B
+alias: Product B
+description: A better deluxe widget
+price: $45.50
+last_updated: 2025-06-15
+customer_rating: 10/10
+
+product: Widget C
+alias: Product C
+description: A travel widget
+price: $19.95
+last_updated: 2025-06-01
+customer_rating: 1/10
