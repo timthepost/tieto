@@ -1,6 +1,6 @@
 // metadata‑aware RAG and retrieval with safe filtering & debug
 // uses cosine similarity, file-file topics and JSONL sections.
-// Scales easily over local or network storage. 
+// Scales easily over local or network storage.
 // ============================================================
 // TODO: Make this a class with config opts
 
@@ -51,7 +51,7 @@ function _cosineSimilarity(a: number[], b: number[]): number {
 }
 
 // You can modify this to use a third-party embedding model, if you
-// need to. 
+// need to.
 async function embed(text: string): Promise<Float32Array> {
   const response = await fetch("http://localhost:8080/v1/embeddings", {
     method: "POST",
@@ -88,7 +88,7 @@ async function ingest(path: string) {
     embedding: number[];
     meta: Record<string, unknown>;
   }[];
-  
+
   for (let i = 0; i < lines.length; i += 3) {
     const text = lines.slice(i, i + 3).join("\n");
     const vec = Array.from(await embed(text));
@@ -203,19 +203,22 @@ async function query(topic: string, question: string, filters: Filter[]) {
     .sort((a, b) => b.score - a.score)
     .slice(0, 3);
   const context = scored.map((c) => c.text).join("\n\n");
-  
-  logDebug('Query: minimum score for inclusion is ', minSimilarityThreshold);
-  logDebug('Query: winning score from memory was ', scored[0].score);
+
+  logDebug("Query: minimum score for inclusion is ", minSimilarityThreshold);
+  logDebug("Query: winning score from memory was ", scored[0].score);
   if (DEBUG) {
     for (const element of scored) {
-      console.log('-----');
-      console.log('Text: ', element.text);
-      console.log('Score:', element.score);
+      console.log("-----");
+      console.log("Text: ", element.text);
+      console.log("Score:", element.score);
     }
   }
-  
+
   if (scored[0].score < minSimilarityThreshold) {
-    logDebug("⚠️  No chunks scored above threshold. Highest was: ", scored[0].score);
+    logDebug(
+      "⚠️  No chunks scored above threshold. Highest was: ",
+      scored[0].score,
+    );
     return;
   }
 
@@ -226,8 +229,8 @@ async function query(topic: string, question: string, filters: Filter[]) {
     console.log(prompt);
     return;
   }
-  
-  // could send this to a third-party completion API too, if privacy is 
+
+  // could send this to a third-party completion API too, if privacy is
   // not a concern.
   const res = await fetch(url, {
     method: "POST",
