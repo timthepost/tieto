@@ -26,7 +26,7 @@ const minSimilarityThreshold = 0.42;
 const DEBUG = Deno.args.includes("--debug") || Deno.env.get("DEBUG") === "1";
 
 function logDebug(...args: unknown[]) {
-  if (DEBUG) console.log("[debug]", ...args);
+  if (DEBUG) console.log("= [debug]", ...args);
 }
 
 // extremely fast comparison
@@ -222,11 +222,12 @@ async function query(topic: string, question: string, filters: Filter[]) {
   logDebug("Query: winning score from memory was ", scored[0].score);
   if (DEBUG) {
     for (const element of scored) {
-      console.log("-----");
-      console.log("Text: ", "\"" + element.text.replace(/\n/g, "\\n").replace(/\r/g, "\\r") + "\"");
-      console.log("Cosine Similarity Score: ", element.score);
-      console.log("Euclidean Distance: ", _euclideanDistance(qVec, element.embedding));
+      console.log("===");
+      console.log("= Text: ", "\"" + element.text.replace(/\n/g, "\\n").replace(/\r/g, "\\r") + "\"");
+      console.log("= Cosine Similarity Score: ", element.score);
+      console.log("= Euclidean Distance: ", _euclideanDistance(qVec, element.embedding));
     }
+    console.log("===");
   }
 
   if (scored[0].score < minSimilarityThreshold) {
@@ -238,7 +239,7 @@ async function query(topic: string, question: string, filters: Filter[]) {
   }
 
   const prompt =
-    `Use the following info to answer the question.\n\n${context}\n\nQuestion: ${question}\nAnswer:`;
+    `Use the information between the dashes "---" to answer the question that follows:\n\n---\n\n${context}\n\n---\n\nQuestion: ${question}`;
   const url = Deno.env.get("RAG_COMPLETION_URL");
   if (!url) {
     console.log(prompt);
