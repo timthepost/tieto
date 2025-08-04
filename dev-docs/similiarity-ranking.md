@@ -31,7 +31,9 @@ query:
 
 ```sh
 deno run -A ./tieto.ts ask acme-corp "Do we have a travel widget?" --debug
+```
 
+```yml
 [debug] Parsed filters []
 [debug] Query: minimum score for inclusion is  0.42
 [debug] Query: winning score from memory was  0.6028476180515044
@@ -61,6 +63,9 @@ Let's change it a bit:
 
 ```sh
 deno run -A ./tieto.ts ask acme-corp "A travel widget 19.95" --debug
+```
+
+```yml
 [debug] Parsed filters []
 [debug] Query: minimum score for inclusion is  0.42
 [debug] Query: winning score from memory was  0.7842300616330571
@@ -89,6 +94,9 @@ instance:
 
 ```sh
  deno run -A ./tieto.ts ask acme-corp "description: A travel widget price: \$19.95 last_updated: 2025\-06\-01" --debug
+ ```
+
+```yml
  [debug] Parsed filters []
 [debug] Query: minimum score for inclusion is  0.42
 [debug] Query: winning score from memory was  0.9913931356906674
@@ -123,6 +131,9 @@ query SOP and HR docs will know about):
 
 ```sh
 deno run -A ./tieto.ts ask acme-corp "what is our sexual harassment policy?" --debug
+```
+
+```yml
 [debug] Parsed filters []
 [debug] Query: minimum score for inclusion is  0.32
 [debug] Query: winning score from memory was  0.33811819297968737
