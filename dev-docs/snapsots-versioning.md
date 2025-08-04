@@ -39,14 +39,16 @@ Each document you ingest should be saved using a UUID filename:
 docs/3b75fa10-3ffb-4d1d-8e1a-0b2c53d7baf7.md
 ```
 
-Then symlink to that UUID with a friendly name:
+Then (optionally) symlink to that UUID with a friendly name:
 
 ```
 docs/llama-3-intro.md -> 3b75fa10-3ffb-4d1d-8e1a-0b2c53d7baf7.md
 ```
 
 This prevents collisions and makes Git’s deduplication behave predictably when
-you archive or split repositories later.
+you archive or split repositories later. You can also use a KV store or something
+else to relate human -> uuid lookup, store symlinks in a whole other directory, or
+whatever makes sense for you. 
 
 ---
 
