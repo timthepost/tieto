@@ -133,7 +133,7 @@ sweat using this, even with high volume document ingestion.
 
 - Configurable read head (up to entire document) for large context windows.
   Default is strong relation only.
-- A better (external) CLI that imports and uses the class properly
+- A better (external) CLI:
   - Better 'ingest'
   - Better 'ask'
   - Way to create, refresh, delete topics
@@ -141,7 +141,8 @@ sweat using this, even with high volume document ingestion.
 - I/O through [Splinter][1] (with HTTP/S fallback) using Splinter's
   [Deno FFI bindings][2].
 - Queries are already very fast, but topic indexing will improve them.
-- This really needs to become a proper class
+- This really needs to become a proper class that toosl supporting it
+  can just import.
 
   [1]: https://github.com/timthepost/splinter
   [2]: https://github.com/timthepost/libsplinter/tree/main/bindings/ts
