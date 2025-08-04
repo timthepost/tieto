@@ -24,10 +24,10 @@ through TS or a simple command line program. There's no "service" to run other
 than the small embedding model, it's all TypeScript, Markdown and flat (JSONL)
 files.
 
-> [!IMPORTANT]  
+> [!IMPORTANT]\
 > Tieto is in its very early stages; while already very useful, is not yet
-> stable. Bugs, math errors, breaking changes, almost no documentation and
-> even (*gasp*) sub-optimal code is ahead. Tieto is pre-release.
+> stable. Bugs, math errors, breaking changes, almost no documentation and even
+> (_gasp_) sub-optimal code is ahead. Tieto is pre-release.
 
 ## How It Works:
 
@@ -40,9 +40,9 @@ documents are returned with optional metadata filtering (via frontmatter).
 
 ### Frontmatter-Aware Ingestion
 
-Each document can include frontmatter in YAML/JSON style. Since the Talmud is
-an example of something that lends very well to this kind of indexing, we'll
-use it:
+Each document can include frontmatter in YAML/JSON style. Since the Talmud is an
+example of something that lends very well to this kind of indexing, we'll use
+it:
 
 ```yml
 ---
@@ -145,19 +145,18 @@ sweat using this, even with high volume document ingestion.
   - Better 'ask'
   - Way to create, refresh, delete topics
   - Way to query supporting model stats?
-- Oak front-end for both retrieval and completion (maybe even embedding, too,
-  if available?)
+- Oak front-end for both retrieval and completion (maybe even embedding, too, if
+  available?)
 - Oak front-end for administrative-style things (ingesting, snapshots, commits,
   topic creation / deletion, defragmenting for btrfs?)
 - I/O through [Splinter][1] (with HTTP/S fallback) using Splinter's
   [Deno FFI bindings][2] inside the Oak services. RAG polls a key to receive its
   queries and write results, no sockets needed, limited exposure.
-- Queries are already very fast, but topic indexing could improve them
-  for users with thousands + of topics (at a cost of slightly more ingestion
-  overhead).
-- This really needs to become a proper class that tools supporting it
-  can just import, but once everything that's going to get thrown at it has a
-  chance to happen so we see what it's actually going to be. 
+- Queries are already very fast, but topic indexing could improve them for users
+  with thousands + of topics (at a cost of slightly more ingestion overhead).
+- This really needs to become a proper class that tools supporting it can just
+  import, but once everything that's going to get thrown at it has a chance to
+  happen so we see what it's actually going to be.
 
   [1]: https://github.com/timthepost/splinter
   [2]: https://github.com/timthepost/libsplinter/tree/main/bindings/ts

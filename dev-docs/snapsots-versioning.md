@@ -1,7 +1,7 @@
 # Snapshots and Versioning with Tieto
 
-Tieto plays well with both **version control** and **modern file systems**. 
-You should probably consider both, because they solve different problems and 
+Tieto plays well with both **version control** and **modern file systems**. You
+should probably consider both, because they solve different problems and
 complement each other beautifully.
 
 On modern GNU/Linux systems, the following things have never been easier to
@@ -10,8 +10,8 @@ install:
 - Version control: `git`, `hg`, `svn`—but probably `git`
 - Filesystem-level snapshots: `btrfs`, ZFS, or anything CoW-aware
 
-Tieto doesn’t require a database and isn't one itself. It’s just a giant pile 
-of embeddings (mostly floats) and associated text, typically stored in `.jsonl` 
+Tieto doesn’t require a database and isn't one itself. It’s just a giant pile of
+embeddings (mostly floats) and associated text, typically stored in `.jsonl`
 files, which are many lines of JSON with each being a discrete node.
 
 That makes this data **trivially versionable** and **natively
@@ -46,9 +46,9 @@ docs/llama-3-intro.md -> 3b75fa10-3ffb-4d1d-8e1a-0b2c53d7baf7.md
 ```
 
 This prevents collisions and makes Git’s deduplication behave predictably when
-you archive or split repositories later. You can also use a KV store or something
-else to relate human -> uuid lookup, store symlinks in a whole other directory, or
-whatever makes sense for you. 
+you archive or split repositories later. You can also use a KV store or
+something else to relate human -> uuid lookup, store symlinks in a whole other
+directory, or whatever makes sense for you.
 
 ---
 
@@ -64,13 +64,13 @@ If a topic’s history gets too large:
 1. Make a clean (shallow) clone into a new directory
 2. Rename the old repo (e.g. `topic-archive-2025-08`); rename the new directory
    to be the topic repo.
-4. Start fresh right where you left off in the one you just archived.
+3. Start fresh right where you left off in the one you just archived.
 
 Boom: instant repo rotation. You can even write a wrapper script to search
-across rotated archives if needed. It requires a minimal window where no commits 
-can be made and some coordination for very old point-in-time rollback, but gives 
-you the ability to snapshot _semantic_ changes in the topic over time without locking
-yourself into a monolithic repo with years of sludge.
+across rotated archives if needed. It requires a minimal window where no commits
+can be made and some coordination for very old point-in-time rollback, but gives
+you the ability to snapshot _semantic_ changes in the topic over time without
+locking yourself into a monolithic repo with years of sludge.
 
 Not bad for a RAG written in a little TypeScript.
 
@@ -115,9 +115,9 @@ Use ext4 only if:
 It works fine for small setups, but lacks CoW, snapshots, and scales poorly with
 massive directory trees. If you're going big, skip it.
 
-Other file systems (fat, IPFS. others) could be made to work for very simple setups, 
-but won't be directly supported because of extension incompatibilities and so on. I
-may try IPFS just for the fun of it sometime.
+Other file systems (fat, IPFS. others) could be made to work for very simple
+setups, but won't be directly supported because of extension incompatibilities
+and so on. I may try IPFS just for the fun of it sometime.
 
 ## 💡 Best Practices Reviewed:
 
@@ -133,8 +133,5 @@ may try IPFS just for the fun of it sometime.
 Out of the box, Git + Btrfs + a little structure to how you name and arrange
 text nodes goes a long way to something that scales really nicely.
 
-Or, use it forever on ext4 alone if you just need something fast and easy
-to use with almost zero overhead and no telemetry or SOC footprint impact.
-
-
-
+Or, use it forever on ext4 alone if you just need something fast and easy to use
+with almost zero overhead and no telemetry or SOC footprint impact.
