@@ -225,7 +225,7 @@ async function query(topic: string, question: string, filters: Filter[]) {
       console.log("===");
       console.log("= Text: ", "\"" + element.text.replace(/\n/g, "\\n").replace(/\r/g, "\\r") + "\"");
       console.log("= Cosine Similarity Score: ", element.score);
-      console.log("= Euclidean Distance: ", _euclideanDistance(qVec, element.embedding));
+      console.log("= Euclidean Distance From Embedded Input: ", _euclideanDistance(qVec, element.embedding));
     }
     console.log("===");
   }
