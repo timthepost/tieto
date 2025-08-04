@@ -113,12 +113,12 @@ windows, which on local models, can already be limited.
 
 - Commands Or Inference Interception:
   1. Model emits a special sequence if it needs current information or isn't
-     sure of how to answer. This runs a rag query, any results, fact that query
-     has already been run, and user's last prompt.
-  2. Model evaluates any data from the RAG/retrieval and is prompted with the
-     question again.
-  3. Model answers based on retrieved data, or replies "I don't know" if no
-     results and told not to make things up.
+     sure of how to answer. This runs a rag query, which returns results, fact
+     that query/lookup has already been run, and user's last prompt.
+  3. Model evaluates any data from the RAG/retrieval and is prompted with the
+     question again, and knows it already looked up the answer.
+  4. Model answers based on analysis of retrieved data, or replies "I don't know"
+     if no results were found. Caching happens somehow ... etc.
 
 There's also an easy way to fall back to ChatGPT if the RAG doesn't know the
 answer if you have an OpenAPI Key, but most use local LLMs to avoid third-party
