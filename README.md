@@ -123,9 +123,30 @@ windows, which on local models, can already be limited.
 There's also an easy way to fall back to ChatGPT if the RAG doesn't know the
 answer if you have an OpenAPI Key, but most use local LLMs to avoid third-party
 models (for privacy reasons or just for their SOC profiles). Just orchestrate it
-in your Oak middleware.
+in your Oak middleware. 
 
-In both cases, the Oak backend needs to help the model by stacking the context
+## Enhancing Third-Party AI Services 
+
+***Where there's an API, there's a way!***
+
+You can set up your Oak middleware to accept connections on localhost, query your
+local RAG, and then:
+
+ - Return results to you immediately, done.
+ - Query another AI (any of the major ones, or even ones on Hugging Face)
+   and then resturn the results to you.
+ - Include information from your RAG automatically in your prompts to third-party
+   models (local prompt storage? would need tuning ...) and then return results to
+   you,
+ - Qury your own local GGUF models or also run web searches
+
+... you get the drift. Any time you have information that you need to frequently
+access, or rare knowledge you need to make sure other people can find, Tieto is
+a potential candidate as a piece of the base of something bigger and useful to you.
+
+## Oak Does Most Of The Lifting
+
+In all cases, the Oak backend needs to help the model by stacking the context
 window correctly, updating text files for the RAG (if using for on-the-fly
 remembering of things), and providing output in the expected structure. That's
 what makes TypeScript so ideal.
@@ -138,13 +159,10 @@ sweat using this, even with high volume document ingestion.
 
 ## Next Development Focus
 
-- Configurable read head (up to entire document) for large context windows.
-  Default is strong relation only.
-- A better (external) CLI:
-  - Better 'ingest'
-  - Better 'ask'
-  - Way to create, refresh, delete topics
-  - Way to query supporting model stats?
+- Configurable read head (up to entire document in all matched nodes) for large
+  context windows. Default is strongest relation only with a fixed threshold. We
+  can set this per-query (and should, very very soon, because it's a PIA until we
+  do).
 - Oak front-end for both retrieval and completion (maybe even embedding, too, if
   available?)
 - Oak front-end for administrative-style things (ingesting, snapshots, commits,
@@ -152,6 +170,16 @@ sweat using this, even with high volume document ingestion.
 - I/O through [Splinter][1] (with HTTP/S fallback) using Splinter's
   [Deno FFI bindings][2] inside the Oak services. RAG polls a key to receive its
   queries and write results, no sockets needed, limited exposure.
+- A better (external) CLI:
+  - Better 'ingest'
+  - Better 'ask'
+  - Way to create, refresh, delete topics that can adapt to different file systems
+    being used (e.g. btrfs aware, or ext4 conservative, or zfs beta) which enables
+    or disables additional features like snapshots.
+  - Some means of managing git that doesn't add anything from NPM (this is privacy
+    focused and part of a bigger project that guarantees solidity against library
+    dependency injection). Has to be in standard lib, or a plan for how to make
+    it that way.
 - Queries are already very fast, but topic indexing could improve them for users
   with thousands + of topics (at a cost of slightly more ingestion overhead).
 - This really needs to become a proper class that tools supporting it can just
