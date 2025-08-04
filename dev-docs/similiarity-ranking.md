@@ -93,8 +93,8 @@ fishing for a tangential match, including it _in order_ helps even more, for
 instance:
 
 ```sh
- deno run -A ./tieto.ts ask acme-corp "description: A travel widget price: \$19.95 last_updated: 2025\-06\-01" --debug
- ```
+deno run -A ./tieto.ts ask acme-corp "description: A travel widget price: \$19.95 last_updated: 2025\-06\-01" --debug
+```
 
 ```yml
  [debug] Parsed filters []
@@ -156,7 +156,9 @@ Similarity plummeted, but there _**was**_ relation to _sexual_ and _health_. Not
 really just full text (`LIKE`), although _similarity_ in known components,
 especially in order, matters a lot.
 
-Cosine similarity compares the meaning of your query to the memory embeddings, not the literal words. It's like asking: *Do these feel like they're about the same thing?*
+Cosine similarity compares the meaning of your query to the memory embeddings,
+not the literal words. It's like asking: _Do these feel like they're about the
+same thing?_
 
 ### Similarity Threshold Setting Breakdown Table
 

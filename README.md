@@ -92,10 +92,8 @@ windows, which on local models, can already be limited.
 ## What's Included:
 
 - TS Runtime (ingest and query text)
-- Example script (assuming llama-server) to run an embedding model
-- Example script (assuming llama-server) to run a completion model
-- Example RAG prompt to return structured, consistent JSON
-- Brief tutorial on cosine similarity and contextual relativism.
+- Brief tutorial on cosine similarity, context relativity.
+- Brief intro to snapshots and point-in-time embedding DB recovery
 
 ## Ways To Experiment In Your Own Pipelines:
 
