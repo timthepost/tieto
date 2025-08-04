@@ -31,6 +31,7 @@ function logDebug(...args: unknown[]) {
 
 // extremely fast comparison
 function cosineSimilarity(a: number[], b: number[]): number {
+  // console.log('CS: ', a.length, b.length);
   const dot = a.reduce((s, ai, i) => s + ai * b[i], 0);
   const na = Math.hypot(...a);
   const nb = Math.hypot(...b);
@@ -48,6 +49,19 @@ function _cosineSimilarity(a: number[], b: number[]): number {
   const normA = Math.sqrt(a.reduce((sum, ai) => sum + ai * ai, 0));
   const normB = Math.sqrt(b.reduce((sum, bi) => sum + bi * bi, 0));
   return dot / (normA * normB);
+}
+
+// reference for how magnitude would affect a query
+// can also be a secondary signal for certain uses. 
+function _euclideanDistance(a: number[], b: number[]): number {
+  if (a.length !== b.length) {
+    throw new Error("Vectors must have the same dimension.");
+  }
+  const sumOfSquaredDifferences = a.reduce((sum, ai, i) => {
+    const difference = ai - b[i];
+    return sum + difference * difference;
+  }, 0);
+  return Math.sqrt(sumOfSquaredDifferences);
 }
 
 // You can modify this to use a third-party embedding model, if you
@@ -209,8 +223,9 @@ async function query(topic: string, question: string, filters: Filter[]) {
   if (DEBUG) {
     for (const element of scored) {
       console.log("-----");
-      console.log("Text: ", element.text);
-      console.log("Score:", element.score);
+      console.log("Text: ", "\"" + element.text.replace(/\n/g, "\\n").replace(/\r/g, "\\r") + "\"");
+      console.log("Cosine Similarity Score: ", element.score);
+      console.log("Euclidean Distance: ", _euclideanDistance(qVec, element.embedding));
     }
   }
 
