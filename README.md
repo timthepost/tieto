@@ -98,9 +98,10 @@ windows, which on local models, can already be limited.
 
 ## What's Included:
 
-- TS Runtime (ingest and query text)
-- Brief tutorial on cosine similarity, context relativity.
-- Brief intro to snapshots and point-in-time embedding DB recovery
+- [TS Runtime][4] (ingest and query text).
+- Brief [tutorial on cosine similarity][5], context relativity.
+- Brief intro to [snapshots and point-in-time recovery][6] for the flat-file
+  embedding DB. 
 
 ## Ways To Experiment In Your Own Pipelines:
 
@@ -191,3 +192,6 @@ sweat using this, even with high volume document ingestion.
   [1]: https://github.com/timthepost/splinter
   [2]: https://github.com/timthepost/libsplinter/tree/main/bindings/ts
   [3]: https://huggingface.co/
+  [4]: tieto.ts
+  [5]: dev-docs/similarity-ranking.md
+  [6]: dev-docs/snapshots-versioning.md 
