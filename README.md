@@ -4,7 +4,7 @@ Tieto was created to provide local (quantized / GGUF) large language models with
 text-based retrieval and retrieval-augmented generation capabilities, in
 resource-constrained environments. Tieto is also the Finnish word for knowledge.
 
-Using Tieto, llama.cpp, and [almost any 3B - 8B Q4_K_S or Q4_K_M model][3], you
+Using Tieto, llama.cpp, and [almost any quantized model][3], you
 can easily run a simple interface to query local text/markdown documents. Tieto
 was developed on an 11th-gen i3 Chromebook with less than 6GB of usable RAM -
 it'll run on any system that can host Deno and a CPU-bound inference engine
