@@ -170,6 +170,8 @@ sweat using this, even with high volume document ingestion.
 - I/O through [Splinter][1] (with HTTP/S fallback) using Splinter's
   [Deno FFI bindings][2] inside the Oak services. RAG polls a key to receive its
   queries and write results, no sockets needed, limited exposure.
+- At least a plan for how to support more than English (I could really use help
+  with this, if someone rather patient wanted to help out)
 - A better (external) CLI:
   - Better 'ingest'
   - Better 'ask'
