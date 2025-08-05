@@ -136,11 +136,11 @@ local RAG, and then:
 
  - Return results to you immediately, done.
  - Query another AI (any of the major ones, or even ones on Hugging Face)
-   and then resturn the results to you.
+   and then return the results to you.
  - Include information from your RAG automatically in your prompts to third-party
    models (local prompt storage? would need tuning ...) and then return results to
    you,
- - Qury your own local GGUF models or also run web searches
+ - Query your own local GGUF models or also run web searches
 
 ... you get the drift. Any time you have information that you need to frequently
 access, or rare knowledge you need to make sure other people can find, Tieto is
