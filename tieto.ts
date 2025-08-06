@@ -183,6 +183,12 @@ function satisfies(meta: Record<string, unknown>, f: Filter): boolean {
   return false;
 }
 
+/**
+ * This is getting re-written very, very soon.
+ * Will be returning JSON (with optional debug object) along with 
+ * similarity and distance scores.
+ * Prompt generation will happen in another method. 
+ */
 async function query(topic: string, question: string, filters: Filter[]) {
   const memDir = join("topics", topic, "memory");
   const chunks: {
