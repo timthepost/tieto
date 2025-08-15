@@ -24,7 +24,7 @@ int is_code_pattern(const char* str, int pos, int len) {
         "->", "++", "--", "==", "!=", "<=", ">=", "&&", "||", 
         "<<", ">>", "+=", "-=", "*=", "/=", "%=", "^=", "&=", "|=",
         "::", "//", "/*", "*/", "/**", "{", "}", "[", "]", "(", ")",
-	";"
+	    ";"
     };
 
     int num_patterns = sizeof(patterns) / sizeof(patterns[0]);
