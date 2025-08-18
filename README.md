@@ -1,4 +1,4 @@
-# Tieto - File-based RAG or Retrieval For gguf LLMs Implemented Entirely With Deno
+# Tieto - File-based RAG or Retrieval For LLMs Implemented Entirely With Deno
 
 Tieto was created to provide local (quantized / GGUF) large language models with
 text-based retrieval and retrieval-augmented generation capabilities, in
