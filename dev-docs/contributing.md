@@ -36,14 +36,5 @@ Please use `deno fmt` prior to sending a PR, but I generally don't reject
 otherwise great contributions because of simple things I can easily fix myself.
 If it's useful and you can get it over the fence, send it and I'll take a look.
 
-## Regarding turning Tieto into a proper class:
-
-This generally happens _later_ in my development cycle, and tests usually come
-as part of that. Right now it's being prototyped. But, the minute _needing_
-things to be more organized actually holds up progress, it can happen. So please
-don't do it _just to do it_, or it's likely going to get re-written anyway. But
-if you're doing it to implement something else (like the CLI or splinter
-integration) then it can happen without ceremony rather quickly.
-
 [1]: https://www.contributor-covenant.org/version/3/0/code_of_conduct/
 [2]: ../README.md

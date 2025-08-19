@@ -186,9 +186,6 @@ sweat using this, even with high volume document ingestion.
     it that way.
 - Queries are already very fast, but topic indexing could improve them for users
   with thousands + of topics (at a cost of slightly more ingestion overhead).
-- This really needs to become a proper class that tools supporting it can just
-  import, but once everything that's going to get thrown at it has a chance to
-  happen so we see what it's actually going to be.
 
   [1]: https://github.com/timthepost/splinter
   [2]: https://github.com/timthepost/libsplinter/tree/main/bindings/ts
