@@ -21,7 +21,12 @@ export async function issueKey(
   const kv = await getKv();
   const key = generateKey();
   const now = Date.now();
-  const record: KeyRecord = { created: now, expires: now + ttlMs, quota, used: 0 };
+  const record: KeyRecord = {
+    created: now,
+    expires: now + ttlMs,
+    quota,
+    used: 0,
+  };
   await kv.set(["apikeys", key], record, { expireIn: ttlMs });
   return key;
 }

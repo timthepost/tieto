@@ -30,23 +30,23 @@ export const DEFAULT_CONFIG: TietoMCPConfig = {
   server: {
     port: 3001,
     host: "localhost",
-    cors_origins: ["*"]
+    cors_origins: ["*"],
   },
   tieto: {
     endpoint: "http://localhost:8000",
     embedding_model: "nomic-ai/nomic-embed-text-v1.5-GGUF",
     max_results: 10,
     default_threshold: 0.7,
-    timeout_ms: 30000
+    timeout_ms: 30000,
   },
   mcp: {
     protocol_version: "2024-11-05",
     server_name: "tieto-mcp-server",
-    server_version: "1.0.0"
+    server_version: "1.0.0",
   },
   logging: {
-    level: "info"
-  }
+    level: "info",
+  },
 };
 
 // Example MCP Client for testing Tieto MCP Server
@@ -64,15 +64,15 @@ export class TietoMCPClient {
       jsonrpc: "2.0",
       id: Date.now(),
       method,
-      params
+      params,
     };
 
     const response = await fetch(`${this.baseUrl}/mcp`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(request)
+      body: JSON.stringify(request),
     });
 
     if (!response.ok) {
@@ -80,7 +80,7 @@ export class TietoMCPClient {
     }
 
     const data = await response.json();
-    
+
     if (data.error) {
       throw new Error(`MCP Error ${data.error.code}: ${data.error.message}`);
     }
@@ -93,12 +93,12 @@ export class TietoMCPClient {
       protocolVersion: "2024-11-05",
       capabilities: {
         tools: {},
-        resources: {}
+        resources: {},
       },
       clientInfo: {
         name: "tieto-mcp-test-client",
-        version: "1.0.0"
-      }
+        version: "1.0.0",
+      },
     });
   }
 
@@ -116,45 +116,53 @@ export class TietoMCPClient {
         query,
         filters: filters || {},
         limit: options?.limit || 10,
-        threshold: options?.threshold || 0.7
-      }
+        threshold: options?.threshold || 0.7,
+      },
     });
-    
+
     return result.content[0].text;
   }
 
-  async ragComplete(query: string, context?: string, filters?: Record<string, any>): Promise<string> {
+  async ragComplete(
+    query: string,
+    context?: string,
+    filters?: Record<string, any>,
+  ): Promise<string> {
     const result = await this.makeRequest("tools/call", {
       name: "tieto_rag_complete",
       arguments: {
         query,
         context: context || "",
-        filters: filters || {}
-      }
+        filters: filters || {},
+      },
     });
-    
+
     return result.content[0].text;
   }
 
-  async ingest(content: string, metadata?: Record<string, any>, topic?: string): Promise<string> {
+  async ingest(
+    content: string,
+    metadata?: Record<string, any>,
+    topic?: string,
+  ): Promise<string> {
     const result = await this.makeRequest("tools/call", {
       name: "tieto_ingest",
       arguments: {
         content,
         metadata: metadata || {},
-        topic: topic || "default"
-      }
+        topic: topic || "default",
+      },
     });
-    
+
     return result.content[0].text;
   }
 
   async listTopics(): Promise<string> {
     const result = await this.makeRequest("tools/call", {
       name: "tieto_list_topics",
-      arguments: {}
+      arguments: {},
     });
-    
+
     return result.content[0].text;
   }
 
@@ -179,81 +187,87 @@ export class TietoMCPClient {
 }
 
 async function testTietoMCP() {
-const client = new TietoMCPClient();
+  const client = new TietoMCPClient();
 
-try {
+  try {
     console.log("🚀 Testing Tieto MCP Server...\n");
-    
+
     // Check server health
     console.log("1. Checking server health...");
     const health = await client.getServerHealth();
     console.log(`   Status: ${health.status}`);
     console.log(`   Server: ${health.server} v${health.version}\n`);
-    
+
     // Initialize MCP connection
     console.log("2. Initializing MCP connection...");
     const initResult = await client.initialize();
     console.log(`   Protocol: ${initResult.protocolVersion}`);
     console.log(`   Server: ${initResult.serverInfo.name}\n`);
-    
+
     // List available tools
     console.log("3. Listing available tools...");
     const tools = await client.listTools();
     tools.tools.forEach((tool: any) => {
-    console.log(`   - ${tool.name}: ${tool.description}`);
+      console.log(`   - ${tool.name}: ${tool.description}`);
     });
     console.log();
-    
+
     // Test search functionality
     console.log("4. Testing document search...");
     try {
-    const searchResult = await client.search("machine learning", {}, { limit: 5 });
-    console.log(`   Search completed. Results preview:`);
-    console.log(`   ${searchResult.substring(0, 200)}...\n`);
+      const searchResult = await client.search("machine learning", {}, {
+        limit: 5,
+      });
+      console.log(`   Search completed. Results preview:`);
+      console.log(`   ${searchResult.substring(0, 200)}...\n`);
     } catch (error) {
-    console.log(`   Search test skipped: ${(error as Error).message}\n`);
+      console.log(`   Search test skipped: ${(error as Error).message}\n`);
     }
-    
+
     // Test RAG completion
     console.log("5. Testing RAG completion...");
     try {
-    const ragResult = await client.ragComplete("What is artificial intelligence?");
-    console.log(`   RAG completion preview:`);
-    console.log(`   ${ragResult.substring(0, 200)}...\n`);
+      const ragResult = await client.ragComplete(
+        "What is artificial intelligence?",
+      );
+      console.log(`   RAG completion preview:`);
+      console.log(`   ${ragResult.substring(0, 200)}...\n`);
     } catch (error) {
-    console.log(`   RAG test skipped: ${(error as Error).message}\n`);
+      console.log(`   RAG test skipped: ${(error as Error).message}\n`);
     }
-    
+
     // Test content ingestion
     console.log("6. Testing content ingestion...");
     try {
-    const ingestResult = await client.ingest(
+      const ingestResult = await client.ingest(
         "This is a test document about MCP integration with Tieto.",
         { source: "test", category: "integration" },
-        "test"
-    );
-    console.log(`   ${ingestResult}\n`);
+        "test",
+      );
+      console.log(`   ${ingestResult}\n`);
     } catch (error) {
-    console.log(`   Ingestion test skipped: ${(error as Error).message}\n`);
+      console.log(`   Ingestion test skipped: ${(error as Error).message}\n`);
     }
-    
+
     // List topics
     console.log("7. Listing topics...");
     try {
-    const topics = await client.listTopics();
-    console.log(`   ${topics}\n`);
+      const topics = await client.listTopics();
+      console.log(`   ${topics}\n`);
     } catch (error) {
-    console.log(`   Topics list skipped: ${(error as Error).message}\n`);
+      console.log(`   Topics list skipped: ${(error as Error).message}\n`);
     }
-    
+
     // List resources
     console.log("8. Listing MCP resources...");
     const resources = await client.listResources();
     resources.resources.forEach((resource: any) => {
-    console.log(`   - ${resource.name} (${resource.uri}): ${resource.description}`);
+      console.log(
+        `   - ${resource.name} (${resource.uri}): ${resource.description}`,
+      );
     });
     console.log();
-    
+
     // Read configuration resource
     console.log("9. Reading server configuration...");
     const config = await client.readResource("tieto://config");
@@ -261,21 +275,20 @@ try {
     console.log(`   Tieto endpoint: ${configObj.tieto_endpoint}`);
     console.log(`   Max results: ${configObj.max_results}`);
     console.log(`   Default threshold: ${configObj.default_threshold}\n`);
-    
+
     console.log("✅ All tests completed successfully!");
-    
-} catch (error) {
+  } catch (error) {
     console.error("❌ Test failed:", (error as Error).message);
-    
+
     if ((error as Error).message.includes("Connection refused")) {
-    console.log("\n💡 Make sure the Tieto MCP server is running:");
-    console.log("   deno run --allow-net --allow-read tieto_mcp_server.ts");
+      console.log("\n💡 Make sure the Tieto MCP server is running:");
+      console.log("   deno run --allow-net --allow-read tieto_mcp_server.ts");
     }
-}
+  }
 }
 
 // Example usage and testing
-if (import.meta.main) {  
+if (import.meta.main) {
   // Run tests
   await testTietoMCP();
 }

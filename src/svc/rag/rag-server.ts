@@ -6,67 +6,69 @@ const router = new Router();
 
 // In-memory data store for demonstration
 // deno-lint-ignore no-explicit-any
-const items: { id: number; name: string; data?: any }[] = [
-  { id: 1, name: "Sample Item", data: { description: "A sample item" } }
+const topics: { id: number; name: string; data?: any }[] = [
+  { id: 1, name: "Sample topic", data: { description: "A sample topic" } },
 ];
 let nextId = 2;
 
-// GET - Retrieve all items or specific item
+// GET - Retrieve all topics or specific topic
 router.get("/", (ctx) => {
-  ctx.response.body = { 
+  ctx.response.body = {
     message: "Hello World! Deno Oak API is running",
     endpoints: {
       "GET /": "This message",
-      "GET /items": "Get all items",
-      "GET /items/:id": "Get specific item",
-      "POST /items": "Create new item",
-      "PUT /items/:id": "Update item",
-      "DELETE /items/:id": "Delete item",
-      "HEAD /items": "Get items metadata"
-    }
+      "GET /topics": "Get all topics",
+      "GET /topics/:id": "Get specific topic",
+      "POST /topics": "Create new topic",
+      "PUT /topics/:id": "Update topic leaf",
+      "DELETE /topics/:id": "Delete topic leaf",
+      "DELETE /:id": "Delete topic",
+      "DELETE /": "Delete all topics",
+      "HEAD /topics": "Get topics metadata",
+    },
   };
 });
 
-router.get("/items", (ctx) => {
-  ctx.response.body = { items, total: items.length };
+router.get("/topics", (ctx) => {
+  ctx.response.body = { topics, total: topics.length };
 });
 
-router.get("/items/:id", (ctx) => {
+router.get("/topics/:id", (ctx) => {
   const id = parseInt(ctx.params.id);
-  const item = items.find(i => i.id === id);
-  
-  if (!item) {
+  const topic = topics.find((i) => i.id === id);
+
+  if (!topic) {
     ctx.response.status = 404;
-    ctx.response.body = { error: "Item not found" };
+    ctx.response.body = { error: "topic not found" };
     return;
   }
-  
-  ctx.response.body = { item };
+
+  ctx.response.body = { topic };
 });
 
-// POST - Create new item
-router.post("/items", async (ctx) => {
+// POST - Create new topic
+router.post("/topics", async (ctx) => {
   try {
     const body = await ctx.request.body({ type: "json" }).value;
-    
+
     if (!body.name) {
       ctx.response.status = 400;
       ctx.response.body = { error: "Name is required" };
       return;
     }
-    
-    const newItem = {
+
+    const newtopic = {
       id: nextId++,
       name: body.name,
-      data: body.data || {}
+      data: body.data || {},
     };
-    
-    items.push(newItem);
-    
+
+    topics.push(newtopic);
+
     ctx.response.status = 201;
-    ctx.response.body = { 
-      message: "Item created successfully",
-      item: newItem 
+    ctx.response.body = {
+      message: "topic created successfully",
+      topic: newtopic,
     };
   } catch (_error) {
     ctx.response.status = 400;
@@ -74,59 +76,59 @@ router.post("/items", async (ctx) => {
   }
 });
 
-// PUT - Update existing item
-router.put("/items/:id", async (ctx) => {
+// PUT - Update existing topic
+router.put("/topics/:id", async (ctx) => {
   try {
     const id = parseInt(ctx.params.id);
-    const itemIndex = items.findIndex(i => i.id === id);
-    
-    if (itemIndex === -1) {
+    const topicIndex = topics.findIndex((i) => i.id === id);
+
+    if (topicIndex === -1) {
       ctx.response.status = 404;
-      ctx.response.body = { error: "Item not found" };
+      ctx.response.body = { error: "topic not found" };
       return;
     }
-    
+
     const body = await ctx.request.body({ type: "json" }).value;
-    
-    // Update the item
-    items[itemIndex] = {
-      ...items[itemIndex],
-      name: body.name || items[itemIndex].name,
-      data: body.data !== undefined ? body.data : items[itemIndex].data
+
+    // Update the topic
+    topics[topicIndex] = {
+      ...topics[topicIndex],
+      name: body.name || topics[topicIndex].name,
+      data: body.data !== undefined ? body.data : topics[topicIndex].data,
     };
-    
-    ctx.response.body = { 
-      message: "Item updated successfully",
-      item: items[itemIndex] 
+
+    ctx.response.body = {
+      message: "topic updated successfully",
+      topic: topics[topicIndex],
     };
   } catch (_error) {
     ctx.response.status = 400;
-    ctx.response.body = { error: "Invalid JSON or item ID" };
+    ctx.response.body = { error: "Invalid JSON or topic ID" };
   }
 });
 
-// DELETE - Remove item
-router.delete("/items/:id", (ctx) => {
+// DELETE - Remove topic
+router.delete("/topics/:id", (ctx) => {
   const id = parseInt(ctx.params.id);
-  const itemIndex = items.findIndex(i => i.id === id);
-  
-  if (itemIndex === -1) {
+  const topicIndex = topics.findIndex((i) => i.id === id);
+
+  if (topicIndex === -1) {
     ctx.response.status = 404;
-    ctx.response.body = { error: "Item not found" };
+    ctx.response.body = { error: "topic not found" };
     return;
   }
-  
-  const deletedItem = items.splice(itemIndex, 1)[0];
-  
-  ctx.response.body = { 
-    message: "Item deleted successfully",
-    deletedItem 
+
+  const deletedtopic = topics.splice(topicIndex, 1)[0];
+
+  ctx.response.body = {
+    message: "topic deleted successfully",
+    deletedtopic,
   };
 });
 
 // HEAD - Get metadata without body
-router.head("/items", (ctx) => {
-  ctx.response.headers.set("X-Total-Items", items.length.toString());
+router.head("/topics", (ctx) => {
+  ctx.response.headers.set("X-Total-topics", topics.length.toString());
   ctx.response.headers.set("X-API-Version", "1.0");
   ctx.response.status = 200;
   // HEAD responses shouldn't have a body
@@ -162,11 +164,11 @@ const PORT = 8000;
 console.log(`🚀 Server running on http://localhost:${PORT}`);
 console.log(`📚 API Documentation:`);
 console.log(`  GET    /              - API info`);
-console.log(`  GET    /items         - Get all items`);
-console.log(`  GET    /items/:id     - Get item by ID`);
-console.log(`  POST   /items         - Create new item`);
-console.log(`  PUT    /items/:id     - Update item`);
-console.log(`  DELETE /items/:id     - Delete item`);
-console.log(`  HEAD   /items         - Get items metadata`);
+console.log(`  GET    /topics         - Get all topics`);
+console.log(`  GET    /topics/:id     - Get topic by ID`);
+console.log(`  POST   /topics         - Create new topic`);
+console.log(`  PUT    /topics/:id     - Update topic`);
+console.log(`  DELETE /topics/:id     - Delete topic`);
+console.log(`  HEAD   /topics         - Get topics metadata`);
 
 await app.listen({ port: PORT });

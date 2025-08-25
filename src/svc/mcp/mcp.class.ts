@@ -76,7 +76,7 @@ class TietoMCPServer {
       embedding_model: "nomic-ai/nomic-embed-text-v1.5-GGUF",
       max_results: 10,
       default_threshold: 0.7,
-      ...config
+      ...config,
     };
 
     this.app = new Application();
@@ -87,21 +87,21 @@ class TietoMCPServer {
 
   private safeErrorMessage(error: unknown): string {
     if (error instanceof Error) return error.message;
-    
-    if (typeof error === 'string') return error;
 
-    if (error && typeof error === 'object' && 'message' in error) {
+    if (typeof error === "string") return error;
+
+    if (error && typeof error === "object" && "message" in error) {
       return String(error.message);
     }
 
-    return 'Unknown error occurred';
+    return "Unknown error occurred";
   }
 
   private setupMiddleware() {
     // Enable CORS for MCP clients
     this.app.use(oakCors({
       origin: "*",
-      allowedHeaders: ["Content-Type", "Authorization"]
+      allowedHeaders: ["Content-Type", "Authorization"],
     }));
 
     // Request logging
@@ -119,7 +119,7 @@ class TietoMCPServer {
       } catch (err) {
         console.error("Server error:", err);
         ctx.response.status = 500;
-        
+
         let requestId = 1;
         try {
           const body = ctx.request.body();
@@ -128,12 +128,12 @@ class TietoMCPServer {
         } catch {
           // Ignore body parsing errors, use default ID
         }
-        
+
         ctx.response.body = this.createErrorResponse(
           requestId,
           -32603,
           "Internal error",
-          (err as Error).message
+          (err as Error).message,
         );
       }
     });
@@ -147,7 +147,7 @@ class TietoMCPServer {
     this.router.post("/mcp", async (ctx) => {
       const body = await ctx.request.body().value;
       const response = await this.handleMCPRequest(body);
-      
+
       ctx.response.headers.set("Content-Type", "application/json");
       ctx.response.body = response;
     });
@@ -158,7 +158,7 @@ class TietoMCPServer {
         status: "healthy",
         server: this.config.name,
         version: this.config.version,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     });
 
@@ -167,7 +167,7 @@ class TietoMCPServer {
       ctx.response.body = {
         server: this.config,
         capabilities: this.getServerCapabilities(),
-        tools: this.getAvailableTools()
+        tools: this.getAvailableTools(),
       };
     });
   }
@@ -177,25 +177,25 @@ class TietoMCPServer {
       switch (request.method) {
         case "initialize":
           return this.handleInitialize(request);
-        
+
         case "tools/list":
           return this.handleToolsList(request);
-        
+
         case "tools/call":
           return await this.handleToolCall(request);
-        
+
         case "resources/list":
           return this.handleResourcesList(request);
-        
+
         case "resources/read":
           return await this.handleResourceRead(request);
-        
+
         default:
           return this.createErrorResponse(
             request.id,
             -32601,
             "Method not found",
-            `Unknown method: ${request.method}`
+            `Unknown method: ${request.method}`,
           );
       }
     } catch (error: unknown) {
@@ -203,7 +203,7 @@ class TietoMCPServer {
         request.id,
         -32603,
         "Internal error",
-        this.safeErrorMessage(error)
+        this.safeErrorMessage(error),
       );
     }
   }
@@ -218,9 +218,10 @@ class TietoMCPServer {
         serverInfo: {
           name: this.config.name,
           version: this.config.version,
-          description: "MCP Server for Tieto RAG system - provides document retrieval and completion capabilities"
-        }
-      }
+          description:
+            "MCP Server for Tieto RAG system - provides document retrieval and completion capabilities",
+        },
+      },
     };
   }
 
@@ -229,8 +230,8 @@ class TietoMCPServer {
       jsonrpc: "2.0",
       id: request.id,
       result: {
-        tools: this.getAvailableTools()
-      }
+        tools: this.getAvailableTools(),
+      },
     };
   }
 
@@ -240,65 +241,86 @@ class TietoMCPServer {
     switch (name) {
       case "tieto_search":
         return await this.handleTietoSearch(request.id, args);
-      
+
       case "tieto_rag_complete":
         return await this.handleTietoRAGComplete(request.id, args);
-      
+
       case "tieto_ingest":
         return await this.handleTietoIngest(request.id, args);
-      
+
       case "tieto_list_topics":
         return await this.handleTietoListTopics(request.id, args);
-      
+
       default:
         return this.createErrorResponse(
           request.id,
           -32601,
           "Tool not found",
-          `Unknown tool: ${name}`
+          `Unknown tool: ${name}`,
         );
     }
   }
 
-  private async handleTietoSearch(id: string | number, args: any): Promise<MCPResponse> {
+  private async handleTietoSearch(
+    id: string | number,
+    args: any,
+  ): Promise<MCPResponse> {
     try {
       const { query, filters, limit, threshold } = args;
-      
+
       if (!query || typeof query !== "string") {
-        return this.createErrorResponse(id, -32602, "Invalid params", "Query is required and must be a string");
+        return this.createErrorResponse(
+          id,
+          -32602,
+          "Invalid params",
+          "Query is required and must be a string",
+        );
       }
 
       const searchParams: TietoQuery = {
         query,
         filters: filters || {},
         limit: limit || this.config.max_results,
-        threshold: threshold || this.config.default_threshold
+        threshold: threshold || this.config.default_threshold,
       };
 
       // Call Tieto's search endpoint
       const response = await this.callTietoAPI("/search", searchParams);
-      
+
       return {
         jsonrpc: "2.0",
         id,
         result: {
           content: [{
             type: "text",
-            text: this.formatSearchResults(response)
-          }]
-        }
+            text: this.formatSearchResults(response),
+          }],
+        },
       };
     } catch (error) {
-      return this.createErrorResponse(id, -32603, "Search failed", this.safeErrorMessage(error));
+      return this.createErrorResponse(
+        id,
+        -32603,
+        "Search failed",
+        this.safeErrorMessage(error),
+      );
     }
   }
 
-  private async handleTietoRAGComplete(id: string | number, args: any): Promise<MCPResponse> {
+  private async handleTietoRAGComplete(
+    id: string | number,
+    args: any,
+  ): Promise<MCPResponse> {
     try {
       const { query, context, filters, limit } = args;
-      
+
       if (!query || typeof query !== "string") {
-        return this.createErrorResponse(id, -32602, "Invalid params", "Query is required and must be a string");
+        return this.createErrorResponse(
+          id,
+          -32602,
+          "Invalid params",
+          "Query is required and must be a string",
+        );
       }
 
       const ragParams = {
@@ -306,76 +328,105 @@ class TietoMCPServer {
         context: context || "",
         filters: filters || {},
         limit: limit || this.config.max_results,
-        mode: "completion"
+        mode: "completion",
       };
 
       // Call Tieto's RAG completion endpoint
       const response = await this.callTietoAPI("/complete", ragParams);
-      
+
       return {
         jsonrpc: "2.0",
         id,
         result: {
           content: [{
             type: "text",
-            text: response.completion || response.answer || "No completion generated"
-          }]
-        }
+            text: response.completion || response.answer ||
+              "No completion generated",
+          }],
+        },
       };
     } catch (error) {
-      return this.createErrorResponse(id, -32603, "RAG completion failed", this.safeErrorMessage(error));
+      return this.createErrorResponse(
+        id,
+        -32603,
+        "RAG completion failed",
+        this.safeErrorMessage(error),
+      );
     }
   }
 
-  private async handleTietoIngest(id: string | number, args: any): Promise<MCPResponse> {
+  private async handleTietoIngest(
+    id: string | number,
+    args: any,
+  ): Promise<MCPResponse> {
     try {
       const { content, metadata, topic } = args;
-      
+
       if (!content || typeof content !== "string") {
-        return this.createErrorResponse(id, -32602, "Invalid params", "Content is required and must be a string");
+        return this.createErrorResponse(
+          id,
+          -32602,
+          "Invalid params",
+          "Content is required and must be a string",
+        );
       }
 
       const ingestParams = {
         content,
         metadata: metadata || {},
-        topic: topic || "default"
+        topic: topic || "default",
       };
 
       // Call Tieto's ingest endpoint
       const response = await this.callTietoAPI("/ingest", ingestParams);
-      
+
       return {
         jsonrpc: "2.0",
         id,
         result: {
           content: [{
             type: "text",
-            text: `Successfully ingested content. Document ID: ${response.document_id || "unknown"}`
-          }]
-        }
+            text: `Successfully ingested content. Document ID: ${
+              response.document_id || "unknown"
+            }`,
+          }],
+        },
       };
     } catch (error) {
-      return this.createErrorResponse(id, -32603, "Ingestion failed", this.safeErrorMessage(error));
+      return this.createErrorResponse(
+        id,
+        -32603,
+        "Ingestion failed",
+        this.safeErrorMessage(error),
+      );
     }
   }
 
-  private async handleTietoListTopics(id: string | number, _args: any): Promise<MCPResponse> {
+  private async handleTietoListTopics(
+    id: string | number,
+    _args: any,
+  ): Promise<MCPResponse> {
     try {
       // Call Tieto's topics endpoint
       const response = await this.callTietoAPI("/topics", {});
-      
+
       return {
         jsonrpc: "2.0",
         id,
         result: {
           content: [{
             type: "text",
-            text: this.formatTopicsList(response)
-          }]
-        }
+            text: this.formatTopicsList(response),
+          }],
+        },
       };
     } catch (error) {
-      return this.createErrorResponse(id, -32603, "Failed to list topics", this.safeErrorMessage(error));
+      return this.createErrorResponse(
+        id,
+        -32603,
+        "Failed to list topics",
+        this.safeErrorMessage(error),
+      );
     }
   }
 
@@ -389,16 +440,16 @@ class TietoMCPServer {
             uri: "tieto://config",
             name: "Tieto Configuration",
             description: "Current Tieto server configuration and status",
-            mimeType: "application/json"
+            mimeType: "application/json",
           },
           {
             uri: "tieto://stats",
             name: "Tieto Statistics",
             description: "Usage statistics and performance metrics",
-            mimeType: "application/json"
-          }
-        ]
-      }
+            mimeType: "application/json",
+          },
+        ],
+      },
     };
   }
 
@@ -415,11 +466,11 @@ class TietoMCPServer {
               contents: [{
                 uri,
                 mimeType: "application/json",
-                text: JSON.stringify(this.config, null, 2)
-              }]
-            }
+                text: JSON.stringify(this.config, null, 2),
+              }],
+            },
           };
-        
+
         // deno-lint-ignore no-case-declarations
         case "tieto://stats":
           const stats = await this.getTietoStats();
@@ -430,17 +481,17 @@ class TietoMCPServer {
               contents: [{
                 uri,
                 mimeType: "application/json",
-                text: JSON.stringify(stats, null, 2)
-              }]
-            }
+                text: JSON.stringify(stats, null, 2),
+              }],
+            },
           };
-        
+
         default:
           return this.createErrorResponse(
             request.id,
             -32601,
             "Resource not found",
-            `Unknown resource: ${uri}`
+            `Unknown resource: ${uri}`,
           );
       }
     } catch (error) {
@@ -448,24 +499,26 @@ class TietoMCPServer {
         request.id,
         -32603,
         "Failed to read resource",
-        this.safeErrorMessage(error)
+        this.safeErrorMessage(error),
       );
     }
   }
 
   private async callTietoAPI(endpoint: string, data: any): Promise<any> {
     const url = `${this.config.tieto_endpoint}${endpoint}`;
-    
+
     const response = await fetch(url, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     });
 
     if (!response.ok) {
-      throw new Error(`Tieto API error: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Tieto API error: ${response.status} ${response.statusText}`,
+      );
     }
 
     return await response.json();
@@ -479,28 +532,30 @@ class TietoMCPServer {
       return {
         error: "Failed to retrieve stats",
         message: this.safeErrorMessage(error),
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     }
   }
 
   private formatSearchResults(response: TietoResponse): string {
     const { results, query, total_results } = response;
-    
+
     let formatted = `Search results for query: "${query}"\n`;
     formatted += `Found ${total_results} total results\n\n`;
-    
+
     results.forEach((result, index) => {
-      formatted += `--- Result ${index + 1} (Score: ${result.score.toFixed(3)}) ---\n`;
+      formatted += `--- Result ${index + 1} (Score: ${
+        result.score.toFixed(3)
+      }) ---\n`;
       formatted += `${result.content}\n`;
-      
+
       if (result.metadata && Object.keys(result.metadata).length > 0) {
         formatted += `Metadata: ${JSON.stringify(result.metadata)}\n`;
       }
-      
+
       formatted += `\n`;
     });
-    
+
     return formatted;
   }
 
@@ -508,7 +563,7 @@ class TietoMCPServer {
     if (!response.topics || !Array.isArray(response.topics)) {
       return "No topics found or invalid response format";
     }
-    
+
     let formatted = "Available Topics:\n\n";
     response.topics.forEach((topic: any) => {
       formatted += `- ${topic.name || topic}\n`;
@@ -520,14 +575,14 @@ class TietoMCPServer {
       }
       formatted += `\n`;
     });
-    
+
     return formatted;
   }
 
   private getServerCapabilities() {
     return {
       tools: {},
-      resources: {}
+      resources: {},
     };
   }
 
@@ -535,55 +590,59 @@ class TietoMCPServer {
     return [
       {
         name: "tieto_search",
-        description: "Search documents in the Tieto knowledge base using semantic similarity",
+        description:
+          "Search documents in the Tieto knowledge base using semantic similarity",
         inputSchema: {
           type: "object",
           properties: {
             query: {
               type: "string",
-              description: "The search query to find relevant documents"
+              description: "The search query to find relevant documents",
             },
             filters: {
               type: "object",
-              description: "Optional metadata filters to narrow search results"
+              description: "Optional metadata filters to narrow search results",
             },
             limit: {
               type: "number",
-              description: "Maximum number of results to return (default: 10)"
+              description: "Maximum number of results to return (default: 10)",
             },
             threshold: {
               type: "number",
-              description: "Minimum similarity threshold for results (default: 0.7)"
-            }
+              description:
+                "Minimum similarity threshold for results (default: 0.7)",
+            },
           },
-          required: ["query"]
-        }
+          required: ["query"],
+        },
       },
       {
         name: "tieto_rag_complete",
-        description: "Generate a completion using RAG (Retrieval-Augmented Generation) with Tieto",
+        description:
+          "Generate a completion using RAG (Retrieval-Augmented Generation) with Tieto",
         inputSchema: {
           type: "object",
           properties: {
             query: {
               type: "string",
-              description: "The question or prompt for RAG completion"
+              description: "The question or prompt for RAG completion",
             },
             context: {
               type: "string",
-              description: "Additional context to include in the completion"
+              description: "Additional context to include in the completion",
             },
             filters: {
               type: "object",
-              description: "Optional metadata filters for document retrieval"
+              description: "Optional metadata filters for document retrieval",
             },
             limit: {
               type: "number",
-              description: "Maximum number of documents to retrieve for context"
-            }
+              description:
+                "Maximum number of documents to retrieve for context",
+            },
           },
-          required: ["query"]
-        }
+          required: ["query"],
+        },
       },
       {
         name: "tieto_ingest",
@@ -593,41 +652,48 @@ class TietoMCPServer {
           properties: {
             content: {
               type: "string",
-              description: "The text content to ingest"
+              description: "The text content to ingest",
             },
             metadata: {
               type: "object",
-              description: "Optional metadata to associate with the content"
+              description: "Optional metadata to associate with the content",
             },
             topic: {
               type: "string",
-              description: "Topic/category for the content (default: 'default')"
-            }
+              description:
+                "Topic/category for the content (default: 'default')",
+            },
           },
-          required: ["content"]
-        }
+          required: ["content"],
+        },
       },
       {
         name: "tieto_list_topics",
-        description: "List all available topics/categories in the Tieto knowledge base",
+        description:
+          "List all available topics/categories in the Tieto knowledge base",
         inputSchema: {
           type: "object",
           properties: {},
-          required: []
-        }
-      }
+          required: [],
+        },
+      },
     ];
   }
 
-  private createErrorResponse(id: string | number, code: number, message: string, data?: any): MCPResponse {
+  private createErrorResponse(
+    id: string | number,
+    code: number,
+    message: string,
+    data?: any,
+  ): MCPResponse {
     return {
       jsonrpc: "2.0",
       id,
       error: {
         code,
         message,
-        data
-      }
+        data,
+      },
     };
   }
 
@@ -635,7 +701,7 @@ class TietoMCPServer {
     console.log(`Starting Tieto MCP Server on port ${port}`);
     console.log(`Tieto endpoint: ${this.config.tieto_endpoint}`);
     console.log(`Available at: http://localhost:${port}/mcp`);
-    
+
     await this.app.listen({ port });
   }
 }
@@ -643,7 +709,7 @@ class TietoMCPServer {
 // CLI entry point
 if (import.meta.main) {
   const config: Partial<MCPServerConfig> = {};
-  
+
   // Parse command line arguments
   const args = Deno.args;
   for (let i = 0; i < args.length; i++) {
@@ -686,10 +752,10 @@ Example:
         break;
     }
   }
-  
+
   const server = new TietoMCPServer(config);
   const port = (config as any).port || 3001;
-  
+
   try {
     await server.start(port);
   } catch (error) {
