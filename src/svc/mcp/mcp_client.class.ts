@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 // Configuration file for Tieto MCP Server
-// Save as: tieto_mcp_config.ts
+// (Mostly) generated client - under construction.
 
 export interface TietoMCPConfig {
   server: {

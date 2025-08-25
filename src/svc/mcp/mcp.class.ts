@@ -1,6 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
 // Tieto MCP Server - Model Context Protocol implementation for Tieto RAG server
 // This server exposes Tieto's retrieval and RAG capabilities via MCP
+// Requires a RAG endpoint that I'm not yet done hammering out. Just a shell right now.
 
 import { Application, Router } from "https://deno.land/x/oak@v12.6.1/mod.ts";
 import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
