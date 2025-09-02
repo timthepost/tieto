@@ -4,7 +4,7 @@ export interface TemplateVariables {
 
 export class TemplateParser {
   private variables: TemplateVariables;
-  
+
   constructor(variables: TemplateVariables = {}) {
     this.variables = variables;
   }
@@ -39,12 +39,14 @@ export class TemplateParser {
   public parseString(template: string): string {
     return template.replace(/\{\{(\w+)\}\}/g, (match, variableName) => {
       const value = this.variables[variableName];
-      
+
       if (value === undefined) {
-        console.warn(`Warning: Variable '${variableName}' not found, keeping placeholder`);
+        console.warn(
+          `Warning: Variable '${variableName}' not found, keeping placeholder`,
+        );
         return match; // Keep original placeholder if variable not found
       }
-      
+
       return String(value);
     });
   }
@@ -83,14 +85,17 @@ export class TemplateParser {
   public hasUnresolvedVariables(template: string): string[] {
     const matches = template.match(/\{\{(\w+)\}\}/g) || [];
     return matches
-      .map(match => match.slice(2, -2)) // Remove {{ }}
-      .filter(varName => this.variables[varName] === undefined);
+      .map((match) => match.slice(2, -2)) // Remove {{ }}
+      .filter((varName) => this.variables[varName] === undefined);
   }
 
   /**
    * Write parsed template to file
    */
-  public async writeToFile(template: string, outputPath: string): Promise<void> {
+  public async writeToFile(
+    template: string,
+    outputPath: string,
+  ): Promise<void> {
     const parsed = this.parseString(template);
     await Deno.writeTextFile(outputPath, parsed);
   }
@@ -106,29 +111,29 @@ export class TemplateParser {
 
 // Async helper function
 export async function createRagPrompt(
-  templatePath: string, 
-  contextData: string, 
-  userQuestion: string
+  templatePath: string,
+  contextData: string,
+  userQuestion: string,
 ): Promise<string> {
   const parser = new TemplateParser({
     CONTEXT_DATA: contextData,
-    USER_QUESTION: userQuestion
+    USER_QUESTION: userQuestion,
   });
-  
+
   return await parser.parseFile(templatePath);
 }
 
 // Sync helper function
 export function createRagPromptSync(
-  templatePath: string, 
-  contextData: string, 
-  userQuestion: string
+  templatePath: string,
+  contextData: string,
+  userQuestion: string,
 ): string {
   const parser = new TemplateParser({
     CONTEXT_DATA: contextData,
-    USER_QUESTION: userQuestion
+    USER_QUESTION: userQuestion,
   });
-  
+
   return parser.parseFileSync(templatePath);
 }
 
@@ -167,15 +172,17 @@ export class InlineTemplateParser extends TemplateParser {
   public async loadTemplatesFromDir(dirPath: string): Promise<void> {
     try {
       for await (const entry of Deno.readDir(dirPath)) {
-        if (entry.isFile && entry.name.endsWith('.txt')) {
-          const templateName = entry.name.replace('.txt', '');
+        if (entry.isFile && entry.name.endsWith(".txt")) {
+          const templateName = entry.name.replace(".txt", "");
           const templatePath = `${dirPath}/${entry.name}`;
           const template = await Deno.readTextFile(templatePath);
           this.registerTemplate(templateName, template);
         }
       }
     } catch (error) {
-      throw new Error(`Failed to load templates from directory: ${dirPath}. ${error}`);
+      throw new Error(
+        `Failed to load templates from directory: ${dirPath}. ${error}`,
+      );
     }
   }
 
@@ -185,15 +192,17 @@ export class InlineTemplateParser extends TemplateParser {
   public loadTemplatesFromDirSync(dirPath: string): void {
     try {
       for (const entry of Deno.readDirSync(dirPath)) {
-        if (entry.isFile && entry.name.endsWith('.txt')) {
-          const templateName = entry.name.replace('.txt', '');
+        if (entry.isFile && entry.name.endsWith(".txt")) {
+          const templateName = entry.name.replace(".txt", "");
           const templatePath = `${dirPath}/${entry.name}`;
           const template = Deno.readTextFileSync(templatePath);
           this.registerTemplate(templateName, template);
         }
       }
     } catch (error) {
-      throw new Error(`Failed to load templates from directory: ${dirPath}. ${error}`);
+      throw new Error(
+        `Failed to load templates from directory: ${dirPath}. ${error}`,
+      );
     }
   }
 }
@@ -209,7 +218,7 @@ const ragPrompt = await createRagPrompt(
 
 // Sync approach (good for CLI tools)
 const ragPromptSync = createRagPromptSync(
-  './prompts/rag.txt', 
+  './prompts/rag.txt',
   'product data...',
   'user search...'
 );

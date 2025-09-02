@@ -46,9 +46,12 @@ export class Tieto {
   constructor(config: TietoConfig = {}) {
     this.config = {
       minSimilarityThreshold: config.minSimilarityThreshold ?? 0.42,
-      debug: config.debug ?? (Deno.args.includes("--debug") || Deno.env.get("DEBUG") === "1"),
-      embeddingUrl: config.embeddingUrl ?? Deno.env.get("EMBEDDING_URL") ?? "http://localhost:8080/v1/embeddings",
-      completionUrl: config.completionUrl ?? Deno.env.get("RAG_COMPLETION_URL") ?? "",
+      debug: config.debug ??
+        (Deno.args.includes("--debug") || Deno.env.get("DEBUG") === "1"),
+      embeddingUrl: config.embeddingUrl ?? Deno.env.get("EMBEDDING_URL") ??
+        "http://localhost:8080/v1/embeddings",
+      completionUrl: config.completionUrl ??
+        Deno.env.get("RAG_COMPLETION_URL") ?? "",
       apiKey: config.apiKey ?? Deno.env.get("API_KEY") ?? "",
       chunkSize: config.chunkSize ?? 3,
       maxResults: config.maxResults ?? 3,
@@ -56,8 +59,8 @@ export class Tieto {
         temperature: 0,
         n_predict: 128,
         max_tokens: 500,
-        ...config.completionParams
-      }
+        ...config.completionParams,
+      },
     };
   }
 
@@ -74,7 +77,7 @@ export class Tieto {
   }
 
   // reference for how magnitude would affect a query
-  // can also be a secondary signal for certain uses. 
+  // can also be a secondary signal for certain uses.
   private euclideanDistance(a: number[], b: number[]): number {
     if (a.length !== b.length) {
       throw new Error("Vectors must have the same dimension.");
@@ -89,7 +92,9 @@ export class Tieto {
   // You can modify this to use a third-party embedding model, if you
   // need to.
   async embed(text: string): Promise<Float32Array> {
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
     if (this.config.apiKey) {
       headers["Authorization"] = `Bearer ${this.config.apiKey}`;
     }
@@ -102,7 +107,9 @@ export class Tieto {
 
     if (!response.ok) {
       const errText = await response.text();
-      throw new Error(`Embedding request failed: ${response.status} ${errText}`);
+      throw new Error(
+        `Embedding request failed: ${response.status} ${errText}`,
+      );
     }
 
     const json = await response.json();
@@ -206,7 +213,11 @@ export class Tieto {
     return false;
   }
 
-  async search(topic: string, question: string, filters: Filter[] = []): Promise<ScoredChunk[]> {
+  async search(
+    topic: string,
+    question: string,
+    filters: Filter[] = [],
+  ): Promise<ScoredChunk[]> {
     const memDir = join("topics", topic, "memory");
     const chunks: Chunk[] = [];
 
@@ -236,20 +247,31 @@ export class Tieto {
       .sort((a, b) => b.score - a.score)
       .slice(0, this.config.maxResults);
 
-    this.logDebug("Query: minimum score for inclusion is ", this.config.minSimilarityThreshold);
+    this.logDebug(
+      "Query: minimum score for inclusion is ",
+      this.config.minSimilarityThreshold,
+    );
     this.logDebug("Query: winning score from memory was ", scored[0]?.score);
-    
+
     if (this.config.debug) {
       for (const element of scored) {
         console.log("===");
-        console.log("= Text: ", "\"" + element.text.replace(/\n/g, "\\n").replace(/\r/g, "\\r") + "\"");
+        console.log(
+          "= Text: ",
+          '"' + element.text.replace(/\n/g, "\\n").replace(/\r/g, "\\r") + '"',
+        );
         console.log("= Cosine Similarity Score: ", element.score);
-        console.log("= Euclidean Distance From Embedded Input: ", this.euclideanDistance(qVec, element.embedding));
+        console.log(
+          "= Euclidean Distance From Embedded Input: ",
+          this.euclideanDistance(qVec, element.embedding),
+        );
       }
       console.log("===");
     }
 
-    return scored.filter(chunk => chunk.score >= this.config.minSimilarityThreshold);
+    return scored.filter((chunk) =>
+      chunk.score >= this.config.minSimilarityThreshold
+    );
   }
 
   buildPrompt(context: string, question: string): string {
@@ -261,29 +283,32 @@ export class Tieto {
       return prompt; // Return prompt if no completion URL configured
     }
 
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
     if (this.config.apiKey) {
       headers["Authorization"] = `Bearer ${this.config.apiKey}`;
     }
 
     // Support different API formats
-    const body = this.config.completionUrl.includes("anthropic") || this.config.completionUrl.includes("openai")
+    const body = this.config.completionUrl.includes("anthropic") ||
+        this.config.completionUrl.includes("openai")
       ? JSON.stringify({
-          model: "claude-3-haiku-20240307", // or configurable
-          messages: [{ role: "user", content: prompt }],
-          max_tokens: this.config.completionParams.max_tokens,
-          temperature: this.config.completionParams.temperature
-        })
+        model: "claude-3-haiku-20240307", // or configurable
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: this.config.completionParams.max_tokens,
+        temperature: this.config.completionParams.temperature,
+      })
       : JSON.stringify({
-          prompt,
-          temperature: this.config.completionParams.temperature,
-          n_predict: this.config.completionParams.n_predict
-        });
+        prompt,
+        temperature: this.config.completionParams.temperature,
+        n_predict: this.config.completionParams.n_predict,
+      });
 
     const res = await fetch(this.config.completionUrl, {
       method: "POST",
       headers,
-      body
+      body,
     });
 
     if (!res.ok) {
@@ -291,23 +316,30 @@ export class Tieto {
     }
 
     const json = await res.json();
-    
+
     // Handle different response formats
     if (json.choices && json.choices[0]?.message?.content) {
       return json.choices[0].message.content.trim(); // OpenAI/Anthropic format
     } else if (json.content) {
       return json.content.trim(); // llama.cpp format
     }
-    
+
     return "";
   }
 
   /**
    * Main query method - searches for relevant chunks and optionally generates completion
    */
-  async query(topic: string, question: string, filters: Filter[] = [], returnRaw = false): Promise<string | { chunks: ScoredChunk[], response?: string, prompt?: string }> {
+  async query(
+    topic: string,
+    question: string,
+    filters: Filter[] = [],
+    returnRaw = false,
+  ): Promise<
+    string | { chunks: ScoredChunk[]; response?: string; prompt?: string }
+  > {
     const chunks = await this.search(topic, question, filters);
-    
+
     if (!chunks.length) {
       const msg = "No relevant chunks found above similarity threshold";
       this.logDebug("⚠️  " + msg);
@@ -318,7 +350,9 @@ export class Tieto {
     const prompt = this.buildPrompt(context, question);
 
     if (returnRaw) {
-      const response = this.config.completionUrl ? await this.complete(prompt) : undefined;
+      const response = this.config.completionUrl
+        ? await this.complete(prompt)
+        : undefined;
       return { chunks, response, prompt };
     }
 

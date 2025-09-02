@@ -4,11 +4,10 @@ Tieto was created to provide local (quantized / GGUF) large language models with
 text-based retrieval and retrieval-augmented generation capabilities, in
 resource-constrained environments. Tieto is also the Finnish word for knowledge.
 
-Using Tieto, llama.cpp, and [almost any quantized model][3], you
-can easily run a simple interface to query local text/markdown documents. Tieto
-was developed on an 11th-gen i3 Chromebook with less than 6GB of usable RAM -
-it'll run on any system that can host Deno and a CPU-bound inference engine
-(llama.cpp).
+Using Tieto, llama.cpp, and [almost any quantized model][3], you can easily run
+a simple interface to query local text/markdown documents. Tieto was developed
+on an 11th-gen i3 Chromebook with less than 6GB of usable RAM - it'll run on any
+system that can host Deno and a CPU-bound inference engine (llama.cpp).
 
 Tieto supports frontmatter metadata in files, and allows filtering by metadata
 in results. It only requires Deno and access to an embedding model (which most
@@ -117,34 +116,35 @@ windows, which on local models, can already be limited.
   1. Model emits a special sequence if it needs current information or isn't
      sure of how to answer. This runs a rag query, which returns results, fact
      that query/lookup has already been run, and user's last prompt.
-  3. Model evaluates any data from the RAG/retrieval and is prompted with the
+  2. Model evaluates any data from the RAG/retrieval and is prompted with the
      question again, and knows it already looked up the answer.
-  4. Model answers based on analysis of retrieved data, or replies "I don't know"
-     if no results were found. Caching happens somehow ... etc.
+  3. Model answers based on analysis of retrieved data, or replies "I don't
+     know" if no results were found. Caching happens somehow ... etc.
 
 There's also an easy way to fall back to ChatGPT if the RAG doesn't know the
 answer if you have an OpenAPI Key, but most use local LLMs to avoid third-party
 models (for privacy reasons or just for their SOC profiles). Just orchestrate it
-in your Oak middleware. 
+in your Oak middleware.
 
-## Enhancing Third-Party AI Services 
+## Enhancing Third-Party AI Services
 
-***Where there's an API, there's a way!***
+_**Where there's an API, there's a way!**_
 
-You can set up your Oak middleware to accept connections on localhost, query your
-local RAG, and then:
+You can set up your Oak middleware to accept connections on localhost, query
+your local RAG, and then:
 
- - Return results to you immediately, done.
- - Query another AI (any of the major ones, or even ones on Hugging Face)
-   and then return the results to you.
- - Include information from your RAG automatically in your prompts to third-party
-   models (local prompt storage? would need tuning ...) and then return results to
-   you,
- - Query your own local GGUF models or also run web searches
+- Return results to you immediately, done.
+- Query another AI (any of the major ones, or even ones on Hugging Face) and
+  then return the results to you.
+- Include information from your RAG automatically in your prompts to third-party
+  models (local prompt storage? would need tuning ...) and then return results
+  to you,
+- Query your own local GGUF models or also run web searches
 
 ... you get the drift. Any time you have information that you need to frequently
 access, or rare knowledge you need to make sure other people can find, Tieto is
-a potential candidate as a piece of the base of something bigger and useful to you.
+a potential candidate as a piece of the base of something bigger and useful to
+you.
 
 ## Oak Does Most Of The Lifting
 
@@ -163,8 +163,8 @@ sweat using this, even with high volume document ingestion.
 
 - Configurable read head (up to entire document in all matched nodes) for large
   context windows. Default is strongest relation only with a fixed threshold. We
-  can set this per-query (and should, very very soon, because it's a PIA until we
-  do).
+  can set this per-query (and should, very very soon, because it's a PIA until
+  we do).
 - Oak front-end for both retrieval and completion (maybe even embedding, too, if
   available?)
 - Oak front-end for administrative-style things (ingesting, snapshots, commits,
@@ -177,13 +177,13 @@ sweat using this, even with high volume document ingestion.
 - A better (external) CLI:
   - Better 'ingest'
   - Better 'ask'
-  - Way to create, refresh, delete topics that can adapt to different file systems
-    being used (e.g. btrfs aware, or ext4 conservative, or zfs beta) which enables
-    or disables additional features like snapshots.
-  - Some means of managing git that doesn't add anything from NPM (this is privacy
-    focused and part of a bigger project that guarantees solidity against library
-    dependency injection). Has to be in standard lib, or a plan for how to make
-    it that way.
+  - Way to create, refresh, delete topics that can adapt to different file
+    systems being used (e.g. btrfs aware, or ext4 conservative, or zfs beta)
+    which enables or disables additional features like snapshots.
+  - Some means of managing git that doesn't add anything from NPM (this is
+    privacy focused and part of a bigger project that guarantees solidity
+    against library dependency injection). Has to be in standard lib, or a plan
+    for how to make it that way.
 - Queries are already very fast, but topic indexing could improve them for users
   with thousands + of topics (at a cost of slightly more ingestion overhead).
 

@@ -1,20 +1,20 @@
-import { parse } from 'https://deno.land/std@0.208.0/csv/mod.ts';
-import { join } from 'https://deno.land/std@0.208.0/path/mod.ts';
-import { ensureDir } from 'https://deno.land/std@0.208.0/fs/mod.ts';
+import { parse } from "https://deno.land/std@0.208.0/csv/mod.ts";
+import { join } from "https://deno.land/std@0.208.0/path/mod.ts";
+import { ensureDir } from "https://deno.land/std@0.208.0/fs/mod.ts";
 
 /**
  * A simple function to sanitize a string for use in a filename.
  * Converts to lowercase, trims whitespace, and replaces invalid characters with underscores.
  */
 function slugify(text: string): string {
-  if (!text) return 'unknown';
+  if (!text) return "unknown";
   return text
     .toString()
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, '_')      // Replace spaces with _
-    .replace(/[^\w\-]+/g, '')   // Remove all non-word chars
-    .replace(/\-\-+/g, '_');    // Replace multiple - with single _
+    .replace(/\s+/g, "_") // Replace spaces with _
+    .replace(/[^\w\-]+/g, "") // Remove all non-word chars
+    .replace(/\-\-+/g, "_"); // Replace multiple - with single _
 }
 
 /**
@@ -28,15 +28,15 @@ function createSymlinkName(strain: Record<string, string>): string {
   const name = slugify(strain.Strain);
   const type = slugify(strain.Type);
   // Using 'Rating' as a placeholder for a value like THC content.
-  const rating = slugify(strain.Rating); 
+  const rating = slugify(strain.Rating);
 
   // Example: northern_lights:~:indica:~:5.md
   const symlink = `${name}:~:${type}:~:${rating}.md`;
-  
+
   // To add more data, just append it. For example:
   // const flavor = slugify(strain.Flavor.split(',')[0]); // get first flavor
   // const symlinkWithFlavor = `${name}:~:${type}:~:${rating}:~:${flavor}.md`;
-  
+
   return symlink;
 }
 
@@ -51,7 +51,7 @@ async function processCsv(csvPath: string, outputDir: string) {
   const fileContent = await Deno.readTextFile(csvPath);
   const strains = parse(fileContent, {
     skipFirstRow: true, // The cannabis.csv file has a header row
-    columns: ['Strain', 'Type', 'Rating', 'Effects', 'Flavor', 'Description'],
+    columns: ["Strain", "Type", "Rating", "Effects", "Flavor", "Description"],
   });
 
   // 3. Process each row (strain) from the CSV.
@@ -73,8 +73,8 @@ async function processCsv(csvPath: string, outputDir: string) {
       rating: parseFloat(strain.Rating) || 0,
       // The 'Flavor' and 'Effects' fields are comma-separated strings.
       // It's best to store them as a YAML list (array) for easier parsing later.
-      flavors: strain.Flavor?.split(',').map(f => f.trim()) || [],
-      effects: strain.Effects?.split(',').map(e => e.trim()) || [],
+      flavors: strain.Flavor?.split(",").map((f) => f.trim()) || [],
+      effects: strain.Effects?.split(",").map((e) => e.trim()) || [],
       // You would add other structured data like THC/CBD levels here.
       // example_thc_a: 19.5,
       // example_cbd: 0.8,
@@ -86,14 +86,16 @@ async function processCsv(csvPath: string, outputDir: string) {
 # ${strain.Strain}
 
 ## Description
-${strain.Description || 'No description available.'}
+${strain.Description || "No description available."}
 `;
 
     // C. Combine front matter and markdown body into the final file content.
     const fileContent = `---
-${Object.entries(frontMatter)
-  .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
-  .join('\n')}
+${
+      Object.entries(frontMatter)
+        .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
+        .join("\n")
+    }
 ---
 ${markdownBody}
 `;
@@ -104,13 +106,16 @@ ${markdownBody}
     // 5. Create the descriptive symbolic link to the actual file.
     const symlinkName = createSymlinkName(strain);
     const symlinkPath = join(outputDir, symlinkName);
-    
+
     try {
-        // Deno.symlink requires the target path to be relative to the link, or an absolute path.
-        // Using the simple filename is sufficient when they are in the same directory.
-        await Deno.symlink(actualFileName, symlinkPath);
+      // Deno.symlink requires the target path to be relative to the link, or an absolute path.
+      // Using the simple filename is sufficient when they are in the same directory.
+      await Deno.symlink(actualFileName, symlinkPath);
     } catch (error) {
-        console.error(`Could not create symlink ${symlinkName}. It might already exist or you are on a system that restricts it.`, error);
+      console.error(
+        `Could not create symlink ${symlinkName}. It might already exist or you are on a system that restricts it.`,
+        error,
+      );
     }
 
     count++;
@@ -124,7 +129,9 @@ if (import.meta.main) {
 
   if (!csvPath || !outputDir) {
     console.error("🔥 Error: Missing arguments.");
-    console.error("Usage: deno run --allow-read --allow-write process_strains.ts <path_to_csv> <output_directory>");
+    console.error(
+      "Usage: deno run --allow-read --allow-write process_strains.ts <path_to_csv> <output_directory>",
+    );
     Deno.exit(1);
   }
 
