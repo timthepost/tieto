@@ -16,13 +16,27 @@ interface Filter {
 }
 
 interface TietoConfig {
+  // minimum cosine similarity threshold for query inclusion (squelch-min)
   minSimilarityThreshold?: number;
+  // maximum Euclidean distance threshold for query inclusion (squelch-max)
+  maxDistance?: number;
+  // directory within {topics}/{topicName} where JSONL embeddings live
+  embeddingsDirectory?: string;
+  // directory holding topics
+  topicsDirectory?: string;
+  // be extremely noisy about what's happening
   debug?: boolean;
+  // embedding completion URL (environment, then localhost v1/embeddings by default)
   embeddingUrl?: string;
+  // completion URL (environment, then localhost v1/completion by default)
   completionUrl?: string;
+  // Your (OpenAPI, Claude, Featherless, OpenRouter or (whatever)) bearer token
   apiKey?: string;
+  // how big of pieces should documents be broken up into? Default is 1k
   chunkSize?: number;
+  // maximum number of results to show
   maxResults?: number;
+  // model settings for completion
   completionParams?: {
     temperature?: number;
     n_predict?: number;
@@ -46,6 +60,9 @@ export class Tieto {
   constructor(config: TietoConfig = {}) {
     this.config = {
       minSimilarityThreshold: config.minSimilarityThreshold ?? 0.42,
+      maxDistance: config.maxDistance ?? 1.00,
+      topicsDirectory: config.topicsDirectory ?? "topics",
+      embeddingsDirectory: config.embeddingsDirectory ?? "memory",
       debug: config.debug ??
         (Deno.args.includes("--debug") || Deno.env.get("DEBUG") === "1"),
       embeddingUrl: config.embeddingUrl ?? Deno.env.get("EMBEDDING_URL") ??
@@ -218,7 +235,8 @@ export class Tieto {
     question: string,
     filters: Filter[] = [],
   ): Promise<ScoredChunk[]> {
-    const memDir = join("topics", topic, "memory");
+    const memDir = join(this.config.topicsDirectory, 
+      topic, this.config.embeddingsDirectory);
     const chunks: Chunk[] = [];
 
     for await (
@@ -251,7 +269,14 @@ export class Tieto {
       "Query: minimum score for inclusion is ",
       this.config.minSimilarityThreshold,
     );
-    this.logDebug("Query: winning score from memory was ", scored[0]?.score);
+    this.logDebug("Query: winning cosine similarity score was ", scored[0]?.score);
+
+    // So great, we know the top semantic results, now we need to refine by 
+    // euclidean distance. current plan:
+    // - copy everything that met or exceeded cosine similarity AND euclidean distance 
+    //   thresholds into a new object, sorted by Euclidean distance score.
+    // - unset previous object
+    // - continue with new object and profit?
 
     if (this.config.debug) {
       for (const element of scored) {
