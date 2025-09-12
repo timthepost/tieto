@@ -290,7 +290,11 @@ export class Tieto {
 
     const qVec = Array.from(await this.embed(question));
     const scored = chunks.map((c) => (
-      { ...c, score: this.cosineSimilarity(c.embedding, qVec) }
+      { 
+        ...c, 
+        score: this.cosineSimilarity(c.embedding, qVec), 
+        distance: this.euclideanDistance(c.embedding, qVec) 
+      }
     ))
       .sort((a, b) => b.score - a.score)
       .slice(0, this.config.maxResults);
@@ -300,8 +304,7 @@ export class Tieto {
       this.config.minSimilarityThreshold,
     );
     this.logDebug("Query: winning cosine similarity score was ", scored[0]?.score);
-    this.logDebug("Query: selected winner Euclidean distance was ", 
-      this.euclideanDistance(qVec, scored[0]?.embedding));
+    this.logDebug("Query: selected winner Euclidean distance was ", scored[0]?.distance);
     this.logDebug("Info: Selected chunks follow below, and are not intentionally sorted by distance.");
 
     // So great, we know the top semantic results, now we need to refine by 
@@ -320,10 +323,7 @@ export class Tieto {
           '"' + element.text.replace(/\n/g, "\\n").replace(/\r/g, "\\r") + '"',
         );
         console.log("= Cosine Similarity Score: ", element.score);
-        console.log(
-          "= Euclidean Distance From Embedded Query: ",
-          this.euclideanDistance(qVec, element.embedding),
-        );
+        console.log("= Euclidean Distance From Embedded Query: ", element.distance);
       }
       console.log("===");
       console.log("");
