@@ -20,7 +20,7 @@ interface TietoConfig {
   // to be used in conjunction with each other. 
   //
   // Cosine similarity measures the angle between vectors (semantic similarity)
-  // - not affected by magnitude, only direction
+  // - not affected by magnitude, only direction (opposite | unrelated | related)
   //
   // Euclidean distance measures straight-line distance between vector endpoints
   // - influenced by both direction and magnitude
@@ -32,7 +32,9 @@ interface TietoConfig {
   // Higher is stronger (higher similarity = stronger result)
   // 0.6 is noisy, 0.7 is good for fuzzy docs search, 0.8+ is very scrutinizing
   minSimilarityThreshold?: number;
-  // maximum Euclidean distance threshold for query inclusion (squelch-max)
+  // maximum Euclidean distance threshold for result inclusion (squelch-max)
+  // results are sorted by distance after semantic similarity, then those 
+  // exceeding max are dropped (could have a callback fire to handle those)
   // Lower is stronger (higher distance = weaker result)
   // 1.0 + is very noisy. 0.9 - 0.8 good for general use. 0.7 and below for more
   // precision, as needed.
