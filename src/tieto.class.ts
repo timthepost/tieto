@@ -187,7 +187,7 @@ export class Tieto {
     }
 
     const [, topic, nameTxt] = path.split("/");
-    const out = `topics/${topic}/memory/${nameTxt.replace(/\.txt$/, ".jsonl")}`;
+    const out = `${this.config.topicsDirectory}/${topic}/${this.config.embeddingsDirectory}/${nameTxt.replace(/\.txt$/, ".jsonl")}`;
     await Deno.writeTextFile(
       out,
       chunks.map((c) => JSON.stringify(c)).join("\n"),
