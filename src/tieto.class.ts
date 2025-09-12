@@ -16,10 +16,30 @@ interface Filter {
 }
 
 interface TietoConfig {
-  // minimum cosine similarity threshold for query inclusion (squelch-min)
+  // The first two options here are particularly important, and are designed
+  // to be used in conjunction with each other. 
+  //
+  // Cosine similarity measures the angle between vectors (semantic similarity)
+  // - not affected by magnitude, only direction
+  //
+  // Euclidean distance measures straight-line distance between vector endpoints
+  // - influenced by both direction and magnitude
+  //
+  // What matters the most here is the quality of the embeddings used during ingestion
+  // and used during querying. Ideally they are the same (which is why self-hosting 
+  // Nomic is ideal).
+  //
+  // Higher is stronger (higher similarity = stronger result)
+  // 0.6 is noisy, 0.7 is good for fuzzy docs search, 0.8+ is very scrutinizing
   minSimilarityThreshold?: number;
   // maximum Euclidean distance threshold for query inclusion (squelch-max)
+  // Lower is stronger (higher distance = weaker result)
+  // 1.0 + is very noisy. 0.9 - 0.8 good for general use. 0.7 and below for more
+  // precision, as needed.
   maxDistance?: number;
+
+  // The rest of these are self-explanatory.
+  //
   // directory within {topics}/{topicName} where JSONL embeddings live
   embeddingsDirectory?: string;
   // directory holding topics
@@ -38,8 +58,15 @@ interface TietoConfig {
   maxResults?: number;
   // model settings for completion
   completionParams?: {
+    // how creative can the model be? 0 = dry and deterministic. 1.75 = buzzed poet
+    // affects distribution of token selection, not hallucinations (only affects how it 
+    // says things, not so much what it says)
     temperature?: number;
+    // how many tokens should the model generate by default? Responses can exceed or
+    // fall short of this - it is a default length to target when generation starts.
     n_predict?: number;
+    // API-specific limits (throw if request would exceed it)
+    // not yet fully working; comprehensive token estimating is planned.
     max_tokens?: number;
   };
 }
@@ -52,6 +79,7 @@ interface Chunk {
 
 interface ScoredChunk extends Chunk {
   score: number;
+  distance?: number;
 }
 
 export class Tieto {
@@ -60,7 +88,7 @@ export class Tieto {
   constructor(config: TietoConfig = {}) {
     this.config = {
       minSimilarityThreshold: config.minSimilarityThreshold ?? 0.42,
-      maxDistance: config.maxDistance ?? 1.00,
+      maxDistance: config.maxDistance ?? 0.95,
       topicsDirectory: config.topicsDirectory ?? "topics",
       embeddingsDirectory: config.embeddingsDirectory ?? "memory",
       debug: config.debug ??
@@ -82,7 +110,7 @@ export class Tieto {
   }
 
   private logDebug(...args: unknown[]) {
-    if (this.config.debug) console.log("= [debug]", ...args);
+    if (this.config.debug) console.log("===", ...args);
   }
 
   // extremely fast comparison
@@ -189,7 +217,7 @@ export class Tieto {
         : valRaw.trim();
       filters.push({ key, op, value });
     }
-    this.logDebug("Parsed filters", filters);
+    this.logDebug("Parsed_filters:", filters);
     return filters;
   }
 
@@ -270,9 +298,13 @@ export class Tieto {
       this.config.minSimilarityThreshold,
     );
     this.logDebug("Query: winning cosine similarity score was ", scored[0]?.score);
+    this.logDebug("Query: selected winner Euclidean distance was ", 
+      this.euclideanDistance(qVec, scored[0]?.embedding));
+    this.logDebug("Info: Selected chunks follow below, and are not intentionally sorted by distance.");
 
     // So great, we know the top semantic results, now we need to refine by 
-    // euclidean distance. current plan:
+    // euclidean distance. The selected winner (by semantic relevance) might not be the
+    // one that should appear as the top result. current plan:
     // - copy everything that met or exceeded cosine similarity AND euclidean distance 
     //   thresholds into a new object, sorted by Euclidean distance score.
     // - unset previous object
@@ -287,11 +319,12 @@ export class Tieto {
         );
         console.log("= Cosine Similarity Score: ", element.score);
         console.log(
-          "= Euclidean Distance From Embedded Input: ",
+          "= Euclidean Distance From Embedded Query: ",
           this.euclideanDistance(qVec, element.embedding),
         );
       }
       console.log("===");
+      console.log("");
     }
 
     return scored.filter((chunk) =>
@@ -300,7 +333,7 @@ export class Tieto {
   }
 
   buildPrompt(context: string, question: string): string {
-    return `Use the information between the dashes "---" to answer the question that follows:\n\n---\n\n${context}\n\n---\n\nQuestion: ${question}`;
+    return `Use the information between the dashes "---" to answer the question that follows:\n\n---\n\n${context}\n\n---\n\nQuestion: ${question}\n`;
   }
 
   async complete(prompt: string): Promise<string> {
