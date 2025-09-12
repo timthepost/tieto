@@ -6,6 +6,12 @@
  * CLI libraries.
  * 
  * It works for now :) 
+ * 
+ * Normally, you can give just read/net/write/env permissions to deno
+ * But when shebang-ing, it's just easier to use -A. You can use the class
+ * with just --allow-read in prod, with --allow-write in dev if you like, but
+ * it needs to be abe to read env vars and use the network for most uses.
+ * 
  */
 
 import { Tieto } from "./src/tieto.class.ts";
@@ -20,7 +26,7 @@ if (import.meta.main) {
   if (cmd === "ingest") {
     const file = argv[0];
     if (!file) {
-      console.error("Usage: deno run -A tieto.ts ingest <topics/.../file.txt>");
+      console.error("Usage: ./tieto ingest <topics/.../file.txt>");
       Deno.exit(1);
     }
     await tieto.ingest(file);
@@ -31,7 +37,7 @@ if (import.meta.main) {
 
     if (!topic || !q) {
       console.error(
-        'Usage: deno run -A tieto.ts ask <topic> "<question>" [--filter …] [--debug]',
+        'Usage: ./tieto ask <topic> "<question>" [--filter …] [--debug]',
       );
       Deno.exit(1);
     }
@@ -39,13 +45,13 @@ if (import.meta.main) {
   } else {
     console.log("Usage:");
     console.log(
-      "  deno run --allow-read --allow-write tieto.ts ingest topics/acme-corp/products.txt",
+      "  ./tieto ingest topics/acme-corp/products.txt",
     );
     console.log(
-      '  deno run --allow-read tieto.ts ask acme-corp "What is Widget A?" --filter status=current',
+      '  ./tieto ask acme-corp "What is Widget A?" --filter status=current',
     );
     console.log(
-      '  deno run --allow-read tieto.ts ask acme-corp "What models come in blue?" --filter price < 50',
+      '  ./tieto ask acme-corp "What models come in blue?" --filter audience=all',
     );
     console.log("\nFiltering supports =, <=, >=, in, and compound clauses.");
   }
