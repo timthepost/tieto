@@ -74,7 +74,14 @@ a broad (semantic) search.
 
 That's great for knowing what's relevant to rank, but not always great at ranking
 it. That's why we then sort by Euclidean distance, with the closest being the most
-related to the specifics of the user's query, not just the semantics.
+related to the specifics of the user's query, not just the semantics. Euclidean distance
+looks at the magnitude of the angle to better understand how close all of the vectors in 
+the user query matched.
+
+A great meataphor is:
+
+***Cosine similarity does the heavy digging; Euclidean distance does the sifting. This 
+of course works best when there's gold in the ground to begin with :)***
 
 This provides very capable and very flexible retrieval of unstructured document data 
 for search interfaces, LLM context queries and more. It's also very useful for RAG 
