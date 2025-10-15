@@ -15,7 +15,7 @@ interface Filter {
   value: string | string[];
 }
 
-interface TietoConfig {
+export interface TietoConfig {
   // The first two options here are particularly important, and are designed
   // to be used in conjunction with each other. 
   //
