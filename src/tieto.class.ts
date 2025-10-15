@@ -44,11 +44,13 @@ export interface TietoConfig {
   //
   // For cosine similiarity, a larger value is stronger signal (higher similarity = stronger 
   // result). 0.6 is noisy, 0.7 is good for fuzzy docs search, 0.8+ is very scrutinizing.
+  // default: 0.4
   minSimilarityThreshold?: number;
   // For Euclidean distance, a smaller value is stronger signal (shorter distance).
   // Values have float precision and range between 1.0 and 0.1, with 1.0 being the most noisy.
   // 0.9 - 0.8 is good for general use. 0.7 and below for exceeding scrutiny. This is relative
-  // to corpus size and language used, so you may need to play with it.  
+  // to corpus size and language used, so you may need to play with it.
+  // default: 0.8
   maxDistance?: number;
 
   // 
@@ -114,8 +116,8 @@ export class Tieto {
 
   constructor(config: TietoConfig = {}) {
     this.config = {
-      minSimilarityThreshold: config.minSimilarityThreshold ?? 0.42,
-      maxDistance: config.maxDistance ?? 0.95,
+      minSimilarityThreshold: config.minSimilarityThreshold ?? 0.4,
+      maxDistance: config.maxDistance ?? 0.8,
       topicsDirectory: config.topicsDirectory ?? "topics",
       embeddingsDirectory: config.embeddingsDirectory ?? "memory",
       debug: config.debug ??
@@ -328,8 +330,9 @@ export class Tieto {
       .slice(0, this.config.maxResults);
 
     this.logDebug(
-      "Query: minimum score for inclusion is ",
-      this.config.minSimilarityThreshold,
+      "Query: minimum score for inclusion is " +
+      this.config.minSimilarityThreshold + 
+      " with a distance of " + this.config.maxDistance
     );
     this.logDebug("Query: winning cosine similarity score was ", scored[0]?.score);
     this.logDebug("Query: selected winner Euclidean distance was ", scored[0]?.distance);
@@ -358,7 +361,8 @@ export class Tieto {
     }
 
     return scored.filter((chunk) =>
-      chunk.score >= this.config.minSimilarityThreshold
+      chunk.score >= this.config.minSimilarityThreshold &&
+      chunk.distance <= this.config.maxDistance
     );
   }
 
