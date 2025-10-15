@@ -94,12 +94,12 @@ export class Tieto {
       topicsDirectory: config.topicsDirectory ?? "topics",
       embeddingsDirectory: config.embeddingsDirectory ?? "memory",
       debug: config.debug ??
-        (Deno.args.includes("--debug") || Deno.env.get("DEBUG") === "1"),
-      embeddingUrl: config.embeddingUrl ?? Deno.env.get("EMBEDDING_URL") ??
+        (Deno.args.includes("--debug") || Deno.env.get("TIETO_DEBUG") === "1"),
+      embeddingUrl: config.embeddingUrl ?? Deno.env.get("TIETO_EMBEDDING_URL") ??
         "http://localhost:8080/v1/embeddings",
       completionUrl: config.completionUrl ??
-        Deno.env.get("RAG_COMPLETION_URL") ?? "",
-      apiKey: config.apiKey ?? Deno.env.get("API_KEY") ?? "",
+        Deno.env.get("TIETO_COMPLETION_URL") ?? "",
+      apiKey: config.apiKey ?? Deno.env.get("TIETO_API_KEY") ?? "",
       chunkSize: config.chunkSize ?? 3,
       maxResults: config.maxResults ?? 3,
       completionParams: {
