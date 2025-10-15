@@ -117,6 +117,9 @@ export class Tieto {
 
   // extremely fast comparison
   private cosineSimilarity(a: number[], b: number[]): number {
+    if (a.length !== b.length) {
+      throw new Error("Vectors must have the same dimension.");
+    }
     const dot = a.reduce((s, ai, i) => s + ai * b[i], 0);
     const na = Math.hypot(...a);
     const nb = Math.hypot(...b);
