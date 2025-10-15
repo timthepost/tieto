@@ -25,23 +25,36 @@ export interface TietoConfig {
   // Euclidean distance measures straight-line distance between vector endpoints
   // - influenced by both direction and magnitude
   //
-  // What matters the most here is the quality of the embeddings used during ingestion
-  // and used during querying. Ideally they are the same (which is why self-hosting 
-  // Nomic is ideal).
+  // To put it in ths simplest-possible terms: Cosine similarity is the steam shovel,
+  // Euclidean distance is the sifter.
   //
-  // Higher is stronger (higher similarity = stronger result)
-  // 0.6 is noisy, 0.7 is good for fuzzy docs search, 0.8+ is very scrutinizing
+  // The *quality* of the embeddings used during ingestion and querying significantly
+  // affect this symphony; as they say: "garbage in, garbage out." If the embeddings 
+  // don't map well to the actual language, the results will just seem random. Ideally,
+  // the same embedding model is used for ingestion and querying (Nomic Text is the
+  // best unless you know for sure what you've got is better).
+  //
+  // Now, with that said, we define two key things: how similiar things have to be in 
+  // order for the steam shovel to pick them up (cosine similiarity),  and then how 
+  // close they have to be in literal meaning in order to get through the sieve (Euclidean
+  // distance). 
+  //
+  // Eventually, the next two settings will be auto-sensing based on corpus, but that's quite
+  // a challenge for such a tiny class.
+  //
+  // For cosine similiarity, a larger value is stronger signal (higher similarity = stronger 
+  // result). 0.6 is noisy, 0.7 is good for fuzzy docs search, 0.8+ is very scrutinizing.
   minSimilarityThreshold?: number;
-  // maximum Euclidean distance threshold for result inclusion (squelch-max)
-  // results are sorted by distance after semantic similarity, then those 
-  // exceeding max are dropped (could have a callback fire to handle those)
-  // Lower is stronger (higher distance = weaker result)
-  // 1.0 + is very noisy. 0.9 - 0.8 good for general use. 0.7 and below for more
-  // precision, as needed.
+  // For Euclidean distance, a smaller value is stronger signal (shorter distance).
+  // Values have float precision and range between 1.0 and 0.1, with 1.0 being the most noisy.
+  // 0.9 - 0.8 is good for general use. 0.7 and below for exceeding scrutiny. This is relative
+  // to corpus size and language used, so you may need to play with it.  
   maxDistance?: number;
 
-  // The rest of these are self-explanatory.
+  // 
+  // Now, the boring no-math configuration options:
   //
+
   // directory within {topics}/{topicName} where JSONL embeddings live
   embeddingsDirectory?: string;
   // directory holding topics
@@ -58,17 +71,24 @@ export interface TietoConfig {
   chunkSize?: number;
   // maximum number of results to show
   maxResults?: number;
-  // model settings for completion
+
+  //
+  // These control the settings issued to the model for RAG completion only (has no
+  // effect on embedding calls)
+  // 
+  
   completionParams?: {
-    // how creative can the model be? 0 = dry and deterministic. 1.75 = buzzed poet
-    // affects distribution of token selection, not hallucinations (only affects how it 
-    // says things, not so much what it says)
+    // Token selection distribution modifier (0 for dry, very proper responses, 0.7
+    // for "cool high school professor" style distribution, 1.75+ for "buzzed poet"
+    // style distribution. Doesn't affect *what things* the model says, only *how* it
+    // says those things).
     temperature?: number;
     // how many tokens should the model generate by default? Responses can exceed or
     // fall short of this - it is a default length to target when generation starts.
     n_predict?: number;
     // API-specific limits (throw if request would exceed it)
-    // not yet fully working; comprehensive token estimating is planned.
+    // not yet fully working; comprehensive token estimating is planned. Tieto assumes
+    // local models by default (no need for token accounting)
     max_tokens?: number;
   };
 }
@@ -126,8 +146,8 @@ export class Tieto {
     return dot / (na * nb);
   }
 
-  // reference for how magnitude would affect a query
-  // can also be a secondary signal for certain uses.
+  // differentiate between precise and fuzzy matches
+  // longer distances = fuzzier match
   private euclideanDistance(a: number[], b: number[]): number {
     if (a.length !== b.length) {
       throw new Error("Vectors must have the same dimension.");
