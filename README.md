@@ -62,17 +62,33 @@ This metadata is parsed at ingest and used to filter search results:
 
 Filtering supports `=`, `<=`, `>=`, `in`, and compound clauses.
 
-### Cosine Similarity Primer
+### Cosine Similarity & Euclidean Distance Primer
 
 Cosine similarity measures the angle between two vectors.
 
 A vector represents a chunk of text (after embedding). A score close to 1.0
 means "nearly identical in direction" (high semantic similarity).
 
-Unlike Euclidean distance, cosine similarity ignores magnitude.
+Unlike Euclidean distance, cosine similarity ignores magnitude, so you capture
+a broad (semantic) search. 
 
-Think of it like this: if two people speak differently but say similar things,
-cosine similarity will capture that.
+That's great for knowing what's relevant to rank, but not always great at ranking
+it. That's why we then sort by Euclidean distance, with the closest being the most
+related to the specifics of the user's query, not just the semantics. Euclidean distance
+looks at the magnitude of the angle to better understand how close all of the vectors in 
+the user query matched.
+
+A great meataphor is:
+
+***Cosine similarity does the heavy digging; Euclidean distance does the sifting. This 
+of course works best when there's gold in the ground to begin with :)***
+
+This provides very capable and very flexible retrieval of unstructured document data 
+for search interfaces, LLM context queries and more. It's also very useful for RAG 
+when it comes to product updates, current events, policy changes, or other instances
+where language models need context that's fresher than their training.
+
+Tieto also makes an excellent chat archive tool.
 
 ## Uses:
 
@@ -89,6 +105,7 @@ cosine similarity will capture that.
   - "Find me something to watch on (free tv app)"
 - Any text database where cosine similarity ranking makes sense
 - Document Indexing (E.g. corporate SOPs, anything exported to text)
+- LLM Conversation Archives
 
 As long as you can get the data into TEXT, JSON, YAML or something else that a
 model can easily understand, it can be ingested and used. Just understand that
