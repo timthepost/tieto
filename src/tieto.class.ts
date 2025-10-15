@@ -1,7 +1,15 @@
-// metadata‑aware RAG and retrieval with safe filtering & debug
-// uses cosine similarity, file-file topics and JSONL sections.
-// Scales easily over local or network storage.
-// ============================================================
+/**
+ * Tieto - A simple flat-file, vector-based semantic search engine
+ * designed for providing completion for RAG servers, LLM long-term 
+ * memory of conversations and context.
+ * 
+ * Buckets based on cosine similiarity of dimensional vectors, then 
+ * refines based on Eculidean distance. Extremely fast and memory-efficient;
+ * runs on most serverlesss platforms just fine.
+ * 
+ * Copyright (C) 2025 Tim Post 
+ * License: Apache 2
+ */
 
 import { walk } from "https://deno.land/std@0.204.0/fs/walk.ts";
 import { join } from "https://deno.land/std@0.204.0/path/mod.ts";
@@ -329,6 +337,8 @@ export class Tieto {
       .sort((a, b) => b.score - a.score)
       .slice(0, this.config.maxResults);
 
+    // Not exactly needed once you get the class dialed into the corpus you're using, 
+    // but if that corpus changes, you'll miss having this. I suggest leaving it here :)
     this.logDebug(
       "Query: minimum score for inclusion is " +
       this.config.minSimilarityThreshold + 
@@ -337,14 +347,6 @@ export class Tieto {
     this.logDebug("Query: winning cosine similarity score was ", scored[0]?.score);
     this.logDebug("Query: selected winner Euclidean distance was ", scored[0]?.distance);
     this.logDebug("Info: Selected chunks follow below, and are not intentionally sorted by distance.");
-
-    // So great, we know the top semantic results, now we need to refine by 
-    // euclidean distance. The selected winner (by semantic relevance) might not be the
-    // one that should appear as the top result. current plan:
-    // - copy everything that met or exceeded cosine similarity AND euclidean distance 
-    //   thresholds into a new object, sorted by Euclidean distance score.
-    // - unset previous object
-    // - continue with new object and profit?
 
     if (this.config.debug) {
       for (const element of scored) {
@@ -427,6 +429,11 @@ export class Tieto {
 
   /**
    * Main query method - searches for relevant chunks and optionally generates completion
+   * @param topic - directory where the documents are
+   * @param question - user query to vectorize and compare
+   * @param filters - array of frontmatter filters to refine the query
+   * @param returnRaw - return prompt instead of running completion (completion-only mode)
+   * @returns Scored chunks or empty array (raw mode), "no info for this" error string otherwise.
    */
   async query(
     topic: string,
@@ -464,12 +471,18 @@ export class Tieto {
     return response;
   }
 
+  //
   // Utility methods for external integrations
-  getConfig(): Required<TietoConfig> {
-    return { ...this.config };
-  }
+  // 
 
+  // Using one config object that's constantly updated is
+  // basically expected use of the class. 
   updateConfig(updates: Partial<TietoConfig>): void {
     this.config = { ...this.config, ...updates };
+  }
+
+  // Return the current config for inspection
+  getConfig(): Required<TietoConfig> {
+    return { ...this.config };
   }
 }
