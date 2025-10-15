@@ -90,6 +90,11 @@ export interface TietoConfig {
     // not yet fully working; comprehensive token estimating is planned. Tieto assumes
     // local models by default (no need for token accounting)
     max_tokens?: number;
+    // completion model (by name, e.g haiku or gpt-mini)
+    // needed if using some third-party AI services (e.g. Claude, ChatGPT)
+    // usually something like {vendor}-{version}-{modeel}-{build_date}, ex:
+    // claude-3-haiku-20240307 
+    modelName?: string;
   };
 }
 
@@ -126,7 +131,7 @@ export class Tieto {
         temperature: 0,
         n_predict: 128,
         max_tokens: 500,
-        ...config.completionParams,
+        modelName: config.completionParams?.modelName ?? "",
       },
     };
   }
@@ -373,11 +378,17 @@ export class Tieto {
       headers["Authorization"] = `Bearer ${this.config.apiKey}`;
     }
 
-    // Support different API formats
-    const body = this.config.completionUrl.includes("anthropic") ||
-        this.config.completionUrl.includes("openai")
+    // Support different API formats and providers, with localhost
+    // (llama.cpp style) being the alternative. Not an exhaustive 
+    // list (need to maintain one most likely)
+    const body = 
+        this.config.completionUrl.includes("anthropic") ||
+        this.config.completionUrl.includes("openai") ||
+        this.config.completionUrl.includes("featherless") ||
+        this.config.completionUrl.includes("openrouter") ||
+        this.config.completionUrl.includes("atlas")
       ? JSON.stringify({
-        model: "claude-3-haiku-20240307", // or configurable
+        model: this.config.completionParams.modelName,
         messages: [{ role: "user", content: prompt }],
         max_tokens: this.config.completionParams.max_tokens,
         temperature: this.config.completionParams.temperature,
