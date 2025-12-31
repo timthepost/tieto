@@ -96,7 +96,10 @@ little to no intentionality to meaning behind their structure. From Pamela's blo
 
 So, _maybe_ there could be some payoff in the housing analogy, but the same level of 
 tuning could make spelunking through corporate policy or legal documents very difficult.
-Tieto can be tuned for very specific uses or just provide general semantic backing.
+Tieto can be tuned for very specific uses or just provide general semantic backing. If
+you really need it, just implement it like the cosine or distance comparison functions,
+and implement it to suit your unique dimensional assumptions so you get the most out 
+of it.
 
 The main take-away is, it's made to be tailored to fit the kind of data you're training
 / working with and assumes every deployment is unique. It tries to be unopinionated beyond
