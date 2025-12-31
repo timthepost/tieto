@@ -34,20 +34,22 @@ A text corpus is ingested into a JSONL vector index.
 
 Texts are chunked and embedded using a llama.cpp-compatible embedding model.
 
-Cosine similarity is used to rank the most relevant chunks per query.Matching
-documents are returned with optional metadata filtering (via frontmatter).
+Cosine similarity along with Euclidean distance is used to rank the most relevant 
+chunks per query. Matching documents are returned with optional metadata filtering, 
+using simple frontmatter.
 
 ### Frontmatter-Aware Ingestion
 
-Each document can include frontmatter in YAML/JSON style. Since the Talmud is an
-example of something that lends very well to this kind of indexing, we'll use
-it:
+Each document can include frontmatter in YAML/JSON style:
 
 ```yml
 ---
-topic: halacha
-corpus: mishnah
-book: berakhot
+topic: Education
+corpus: Mathematics
+book: Trigonometry
+document: Syllabus
+page: 1
+author: Garfield
 ---
 Text goes here...
 ```
@@ -56,7 +58,7 @@ This metadata is parsed at ingest and used to filter search results:
 
 ```json
 {
-  "filters": { "topic": "halacha", "book": "berakhot" }
+  "filters": { "topic": "Education", "book": "Trigonometry" }
 }
 ```
 
@@ -64,31 +66,33 @@ Filtering supports `=`, `<=`, `>=`, `in`, and compound clauses.
 
 ### Cosine Similarity & Euclidean Distance Primer
 
-Cosine similarity measures the angle between two vectors.
+For the rest of this to make sense, you'll need to understand vectors. If you
+need a quick primer that's visual and VERY easy to understand, check out 
+[A Visual Introduction To Vector Embeddings][8] by Microsoft's Pamela Fox
 
-A vector represents a chunk of text (after embedding). A score close to 1.0
-means "nearly identical in direction" (high semantic similarity).
+Cosine similarity measures the angle between two vectors, which represent a 
+chunk of text after embedding. A score close to 1.0 means "nearly identical in 
+direction", or a high semantic relation probability, AKA "A match".
 
-Unlike Euclidean distance, cosine similarity ignores magnitude, so you capture
-a broad (semantic) search. 
+The thing is, cosine similarity captures a very broad selection because it ignores 
+magnitude (distance), so it might not do a very good job differentiating a bathroom 
+from a bedroom from a garage if you were using it to search housing inventory.
 
-That's great for knowing what's relevant to rank, but not always great at ranking
-it. That's why we then sort by Euclidean distance, with the closest being the most
-related to the specifics of the user's query, not just the semantics. Euclidean distance
-looks at the magnitude of the angle to better understand how close all of the vectors in 
-the user query matched.
+So, Tieto takes the above sampling that's already known to be relevant above an 
+objective  pre-defined level, and *then* it takes magnitude into account by calculating 
+the Euclidean distance to better understand how closely all of the vectors in the user 
+query actually matched.
 
 A great meataphor is:
 
 ***Cosine similarity does the heavy digging; Euclidean distance does the sifting. This 
 of course works best when there's gold in the ground to begin with :)***
 
-This provides very capable and very flexible retrieval of unstructured document data 
-for search interfaces, LLM context queries and more. It's also very useful for RAG 
-when it comes to product updates, current events, policy changes, or other instances
-where language models need context that's fresher than their training.
+Tieto can either augment an existing text-based search to provide semantic results, 
+or be a stand-alone semantic search for unstructured text. It can help you build a 
+robot librarian, or help you find gaps or conflicts in training data.
 
-Tieto also makes an excellent chat archive tool.
+And, it's written in TypeScript.
 
 ## Uses:
 
@@ -211,3 +215,4 @@ sweat using this, even with high volume document ingestion.
   [5]: https://github.com/timthepost/tieto/blob/main/dev-docs/similiarity-ranking.md
   [6]: https://github.com/timthepost/tieto/blob/main/dev-docs/snapsots-versioning.md
   [7]: https://github.com/timthepost/tieto/blob/main/dev-docs/contributing.md
+  [8]: https://techcommunity.microsoft.com/blog/educatordeveloperblog/a-visual-introduction-to-vector-embeddings/4418793
