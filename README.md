@@ -88,11 +88,19 @@ A great meataphor is:
 ***Cosine similarity does the heavy digging; Euclidean distance does the sifting. This 
 of course works best when there's gold in the ground to begin with :)***
 
-Tieto can either augment an existing text-based search to provide semantic results, 
-or be a stand-alone semantic search for unstructured text. It can help you build a 
-robot librarian, or help you find gaps or conflicts in training data.
+"Taxi Cab" distance is generally unuseful when youre dealing with dimensions that have
+little to no intentionality to meaning behind their structure. From Pamela's blog:
 
-And, it's written in TypeScript.
+> if you are working with a vector where each dimension has a very specific meaning and
+> has been constructed with per-dimension meaning intentionally ....
+
+So, _maybe_ there could be some payoff in the housing analogy, but the same level of 
+tuning could make spelunking through corporate policy or legal documents very difficult.
+Tieto can be tuned for very specific uses or just provide general semantic backing.
+
+The main take-away is, it's made to be tailored to fit the kind of data you're training
+/ working with and assumes every deployment is unique. It tries to be unopinionated beyond
+the most basic TypeScript conventions.
 
 ## Uses:
 
@@ -109,7 +117,7 @@ And, it's written in TypeScript.
   - "Find me something to watch on (free tv app)"
 - Any text database where cosine similarity ranking makes sense
 - Document Indexing (E.g. corporate SOPs, anything exported to text)
-- LLM Conversation Archives
+- LLM Conversation Archives (chats, RAG responses, etc)
 
 As long as you can get the data into TEXT, JSON, YAML or something else that a
 model can easily understand, it can be ingested and used. Just understand that
