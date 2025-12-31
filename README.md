@@ -72,7 +72,8 @@ need a quick primer that's visual and VERY easy to understand, check out
 
 Cosine similarity measures the angle between two vectors, which represent a 
 chunk of text after embedding. A score close to 1.0 means "nearly identical in 
-direction", or a high semantic relation probability, AKA "A match".
+direction", or a high semantic relation probability. In lay terms: a likely
+match _candidate_.
 
 The thing is, cosine similarity captures a very broad selection because it ignores 
 magnitude (distance), so it might not do a very good job differentiating a bathroom 
