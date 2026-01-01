@@ -88,7 +88,11 @@ Tieto also makes an excellent chat archive tool.
 ## How To Use:
 
 Grab the code and look at the `tieto.ts` executable script, which provides a basic
-demo for how the class works. See the class itself in `src/`. 
+demo for how the class works. See the class itself in `src/`. You need to either 
+start an embedding model locally, or configure your provider API info. 
+
+I highly recommend Nomic Text Embed locally, or Nomic Atlas if you have to use 
+a third-party API. Both are free and very high quality.
 
 The simplest invocation:
 
