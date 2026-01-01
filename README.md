@@ -79,18 +79,68 @@ where language models need context that's fresher than their training.
 
 Tieto also makes an excellent chat archive tool.
 
-### Requirements:
+## Requirements:
 
 - Access to an embedding model (Nomic Text recommended).
 - Access to a model to analyze results (optional)
 - Deno
 
-### How To Use:
+## How To Use:
 
 Grab the code and look at the `tieto.ts` executable script, which provides a basic
-demo for how the class works. `topics/` contains a directory named `acme-corp` which
-contains some unstructured pricing information to help you dive in.
+demo for how the class works. See the class itself in `src/`. 
 
-Individual methods / etc are commented.
- 
+The simplest invocation:
+
+```ts
+import { Tieto } from "./src/tieto.class.ts";
+
+// recommend debug until everything works
+const tieto = new Tieto({debug: true});
+
+await tieto.ingest('/path/to/documentation.md');
+await tieto.query('topic_name', user_query, metadata_filters);
+```
+
+You can also ingest independent turns from a chat conversation with all the metadata
+you need (very useful for long-term semantically-accessible memory). It doesn't 
+*have* to be a file. 
+
+### Default Layout
+
+Tieto takes advantage of the file system structure for its own organization. In fact,
+`btrfs` is the preferred way to go, with each topic being snapshot-able independently
+from the others, with `git` used to manage versioning of the `.jsonl` indexes.
+
+But getting started, we just have `topics/` in the repo, with `acme-corp` being the 
+sole topic:
+
+```txt
+   topics/
+      acme-corp/
+         latest-pricing.txt
+         memory/
+            latest-pricing.jsonl
+```
+
+When you run `./tieto ingest topics/acme-corp/latest-pricing.txt, it writes the index
+to the `memory/` location. This can be configured in the class.
+
+At some point in the future I plan to add a clustered index to the root topic directory.
+
+Once you have files ingested, you can run:
+
+```bash
+./tieto ask acme-corp "Do we have a compact widget?"
+./tieto ask acme-corp "What is the price of our deluxe model?" 
+```
+
+It will return excerpts of text that a completion LLM (or knowledgeable person) would
+need to be able to answer the questions.
+
+... and, note that it figured out "compact" from "travel".  
+
+Adjust the cosine similarity scoring to "level out" the kind of content you're indexing,
+and then L1, and ultimately L2, whatever you need.
+
  [1]: https://github.com/timthepost/tieto/blob/main/topics/acme-corp/memory/latest-pricing.jsonl
