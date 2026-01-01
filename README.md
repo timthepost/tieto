@@ -104,7 +104,7 @@ import { Tieto } from "./src/tieto.class.ts";
 // recommend debug until everything works
 const tieto = new Tieto({ debug: true });
 
-await tieto.ingest("/path/to/documentation.md");
+await tieto.ingest("topics/topic_name/documentation.md");
 await tieto.query("topic_name", user_query, metadata_filters);
 ```
 
