@@ -1,27 +1,22 @@
 # Tieto - File-based RAG or Retrieval For LLMs Implemented Entirely With Deno
 
-Tieto was created to provide local (quantized / GGUF) large language models with
-text-based retrieval and retrieval-augmented generation capabilities, in
-resource-constrained environments. Tieto is also the Finnish word for knowledge.
+Tieto was created to provide local (quantized / GGUF) large language models 
+operating in resource-constrained environments with text-based retrieval and 
+retrieval-augmented generation capabilities.
 
-Using Tieto, llama.cpp, and [almost any quantized model][3], you can easily run
-a simple interface to query local text/markdown documents. Tieto was developed
-on an 11th-gen i3 Chromebook with less than 6GB of usable RAM - it'll run on any
-system that can host Deno and a CPU-bound inference engine (llama.cpp).
+Tieto is also the Finnish word for knowledge.
 
-Tieto supports frontmatter metadata in files, and allows filtering by metadata
-in results. It only requires Deno and access to an embedding model (which most
-also run locally) in order to ingest text and make it searchable.
+Using Tieto, llama.cpp, and a local LLM, you can query local text/markdown 
+documents that are organized and can be filtered with simple frontmatter. 
 
-Typescript gets the results, and (if run in completion / RAG mode) they're
-delivered in a form that can be injected into the user's prompt to provide the
-relevant information necessary to answer the prompt.
+Tieto understands two modes of operation: ***retrieval-only*** and ***completion***.
+In retrieval-only mode, Tieto queries the document pool to find any context
+surrounding the user's query. In _completion_ mode, Tieto presents what it found
+along with any metadata in a prompt along with the user's query to a completion
+model to answer, which can be local or remote. This is how it provides retrieval
+augmented generation.
 
-In retrieval-only mode, it's extremely useful in scripting or any other scenario
-where you need a lightweight serverless text database that is easily queried
-through TS or a simple command line program. There's no "service" to run other
-than the small embedding model, it's all TypeScript, Markdown and flat (JSONL)
-files.
+Paths, endpoints and everything else is controlled in an easy to use class.
 
 > [!IMPORTANT]\
 > Tieto is in its very early stages; while already very useful, is not yet
@@ -78,7 +73,7 @@ related to the specifics of the user's query, not just the semantics. Euclidean 
 looks at the magnitude of the angle to better understand how close all of the vectors in 
 the user query matched.
 
-A great meataphor is:
+A great metaphor is:
 
 ***Cosine similarity does the heavy digging; Euclidean distance does the sifting. This 
 of course works best when there's gold in the ground to begin with :)***
@@ -90,124 +85,10 @@ where language models need context that's fresher than their training.
 
 Tieto also makes an excellent chat archive tool.
 
-## Uses:
+### How To Use:
 
-- LLM Retrieval (long-term / short term working memory)
-  - Make chat history easy to search
-  - Easily pipe RSS into text models can ingest in prompts (current events)
-  - Have local models summarize meeting transcripts privately
-  - Have local models generate better content
-  - Game database (RPG characters, quests, etc)
-- LLM Completion (RAG)
-  - "Explain our vacation policy"
-  - "Summarize our social media user's sentiment toward us"
-  - "Find the best indica-hybrid on sale at the dispensary"
-  - "Find me something to watch on (free tv app)"
-- Any text database where cosine similarity ranking makes sense
-- Document Indexing (E.g. corporate SOPs, anything exported to text)
-- LLM Conversation Archives
+Grab the code and look at the `tieto.ts` executable script, which provides a basic
+demo for how the class works. `topics/` contains a directory named `acme-corp` which
+contains some unstructured pricing information to help you dive in.
 
-As long as you can get the data into TEXT, JSON, YAML or something else that a
-model can easily understand, it can be ingested and used. Just understand that
-structured code consumes significantly more tokens from available context
-windows, which on local models, can already be limited.
-
-## What's Included:
-
-- [TS Runtime][4] (ingest and query text).
-- Brief [tutorial on cosine similarity][5], context relativity.
-- Brief intro to [snapshots and point-in-time recovery][6] for the flat-file
-  embedding DB.
-- Some info [on contributing][7].
-
-## Ways To Experiment In Your Own Pipelines:
-
-- Query Pipeline:
-  1. Oak API gets user input
-  2. Oak API embeds user query, queries tieto
-  3. Oak API injects "## Use the following data to answer ..." at the beginning
-     of the user prompt (no data if no results)
-  4. Local LLM prompt specifically told to not make up results
-
-- Commands Or Inference Interception:
-  1. Model emits a special sequence if it needs current information or isn't
-     sure of how to answer. This runs a rag query, which returns results, fact
-     that query/lookup has already been run, and user's last prompt.
-  2. Model evaluates any data from the RAG/retrieval and is prompted with the
-     question again, and knows it already looked up the answer.
-  3. Model answers based on analysis of retrieved data, or replies "I don't
-     know" if no results were found. Caching happens somehow ... etc.
-
-There's also an easy way to fall back to ChatGPT if the RAG doesn't know the
-answer if you have an OpenAPI Key, but most use local LLMs to avoid third-party
-models (for privacy reasons or just for their SOC profiles). Just orchestrate it
-in your Oak middleware.
-
-## Enhancing Third-Party AI Services
-
-_**Where there's an API, there's a way!**_
-
-You can set up your Oak middleware to accept connections on localhost, query
-your local RAG, and then:
-
-- Return results to you immediately, done.
-- Query another AI (any of the major ones, or even ones on Hugging Face) and
-  then return the results to you.
-- Include information from your RAG automatically in your prompts to third-party
-  models (local prompt storage? would need tuning ...) and then return results
-  to you,
-- Query your own local GGUF models or also run web searches
-
-... you get the drift. Any time you have information that you need to frequently
-access, or rare knowledge you need to make sure other people can find, Tieto is
-a potential candidate as a piece of the base of something bigger and useful to
-you.
-
-## Oak Does Most Of The Lifting
-
-In all cases, the Oak backend needs to help the model by stacking the context
-window correctly, updating text files for the RAG (if using for on-the-fly
-remembering of things), and providing output in the expected structure. That's
-what makes TypeScript so ideal.
-
-This is not intended for high-volume use, but the only limits to this are the
-RAM and underlying file system, as long as you have enough CPU to support at
-least the Oak front-end and (ideally) an embedding model. See the `dev-docs/`
-folder for more about how to get started. Most modern desktops will not break a
-sweat using this, even with high volume document ingestion.
-
-## Next Development Focus
-
-- Configurable read head (up to entire document in all matched nodes) for large
-  context windows. Default is strongest relation only with a fixed threshold. We
-  can set this per-query (and should, very very soon, because it's a PIA until
-  we do).
-- Oak front-end for both retrieval and completion (maybe even embedding, too, if
-  available?)
-- Oak front-end for administrative-style things (ingesting, snapshots, commits,
-  topic creation / deletion, defragmenting for btrfs?)
-- I/O through [Splinter][1] (with HTTP/S fallback) using Splinter's
-  [Deno FFI bindings][2] inside the Oak services. RAG polls a key to receive its
-  queries and write results, no sockets needed, limited exposure.
-- At least a plan for how to support more than English (I could really use help
-  with this, if someone rather patient wanted to help out)
-- A better (external) CLI:
-  - Better 'ingest'
-  - Better 'ask'
-  - Way to create, refresh, delete topics that can adapt to different file
-    systems being used (e.g. btrfs aware, or ext4 conservative, or zfs beta)
-    which enables or disables additional features like snapshots.
-  - Some means of managing git that doesn't add anything from NPM (this is
-    privacy focused and part of a bigger project that guarantees solidity
-    against library dependency injection). Has to be in standard lib, or a plan
-    for how to make it that way.
-- Queries are already very fast, but topic indexing could improve them for users
-  with thousands + of topics (at a cost of slightly more ingestion overhead).
-
-  [1]: https://github.com/timthepost/splinter
-  [2]: https://github.com/timthepost/libsplinter/tree/main/bindings/ts
-  [3]: https://huggingface.co/
-  [4]: https://github.com/timthepost/tieto/blob/main/tieto.ts
-  [5]: https://github.com/timthepost/tieto/blob/main/dev-docs/similiarity-ranking.md
-  [6]: https://github.com/timthepost/tieto/blob/main/dev-docs/snapsots-versioning.md
-  [7]: https://github.com/timthepost/tieto/blob/main/dev-docs/contributing.md
+Individual methods / etc are commented. 
