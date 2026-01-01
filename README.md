@@ -6,8 +6,8 @@ retrieval-augmented generation capabilities.
 
 Tieto is also the Finnish word for knowledge.
 
-Using Tieto, llama.cpp, and a local LLM, you can query local text/markdown 
-documents that are organized and can be filtered with simple frontmatter. 
+Using Tieto, llama.cpp, and an embedding model, you can query local text/markdown 
+documents and filter by frontmatter metadata.
 
 Tieto understands two modes of operation: ***retrieval-only*** and ***completion***.
 In retrieval-only mode, Tieto queries the document pool to find any context
@@ -25,7 +25,7 @@ Paths, endpoints and everything else is controlled in an easy to use class.
 
 ## How It Works:
 
-A text corpus is ingested into a JSONL vector index.
+A text corpus is ingested into a JSONL vector index ([example index][1]).
 
 Texts are chunked and embedded using a llama.cpp-compatible embedding model.
 
@@ -48,6 +48,8 @@ Text corpus you want to ingest goes here...
 
 Filtering supports `=`, `<=`, `>=`, `in`, and compound clauses. Tieto "just
 works" to add semantic search to most modern documentation.
+
+Chunk size, et al, are configurable at runtime.
 
 ### Cosine Similarity & Euclidean Distance Primer
 
@@ -90,3 +92,5 @@ demo for how the class works. `topics/` contains a directory named `acme-corp` w
 contains some unstructured pricing information to help you dive in.
 
 Individual methods / etc are commented.
+ 
+ [1]: https://github.com/timthepost/tieto/blob/main/topics/acme-corp/memory/latest-pricing.jsonl
