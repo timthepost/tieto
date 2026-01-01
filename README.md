@@ -85,6 +85,12 @@ where language models need context that's fresher than their training.
 
 Tieto also makes an excellent chat archive tool.
 
+### Requirements:
+
+- Access to an embedding model (Nomic Text recommended).
+- Access to a model to analyze results (optional)
+- Deno
+
 ### How To Use:
 
 Grab the code and look at the `tieto.ts` executable script, which provides a basic
