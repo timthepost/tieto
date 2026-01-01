@@ -34,28 +34,20 @@ documents are returned with optional metadata filtering (via frontmatter).
 
 ### Frontmatter-Aware Ingestion
 
-Each document can include frontmatter in YAML/JSON style. Since the Talmud is an
-example of something that lends very well to this kind of indexing, we'll use
-it:
+Each document can include frontmatter in YAML/JSON style:
 
 ```yml
 ---
-topic: halacha
-corpus: mishnah
-book: berakhot
+key: value
+key1: value1
+key2: value2
 ---
-Text goes here...
+
+Text corpus you want to ingest goes here...
 ```
 
-This metadata is parsed at ingest and used to filter search results:
-
-```json
-{
-  "filters": { "topic": "halacha", "book": "berakhot" }
-}
-```
-
-Filtering supports `=`, `<=`, `>=`, `in`, and compound clauses.
+Filtering supports `=`, `<=`, `>=`, `in`, and compound clauses. Tieto "just
+works" to add semantic search to most modern documentation.
 
 ### Cosine Similarity & Euclidean Distance Primer
 
@@ -97,4 +89,4 @@ Grab the code and look at the `tieto.ts` executable script, which provides a bas
 demo for how the class works. `topics/` contains a directory named `acme-corp` which
 contains some unstructured pricing information to help you dive in.
 
-Individual methods / etc are commented. 
+Individual methods / etc are commented.
