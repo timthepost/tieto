@@ -151,6 +151,7 @@ would need to be able to answer the questions.
 ... and, note that it figured out "travel" from "compact" in the first example.
 
 Adjust the cosine similarity scoring to "level out" the kind of content you're
-indexing, and then L1, and ultimately L2, whatever you need.
+indexing, and then L1, and ultimately L2 (Manhattan distance) if it's meaningrul, 
+whatever you need.
 
 [1]: https://github.com/timthepost/tieto/blob/main/topics/acme-corp/memory/latest-pricing.jsonl
